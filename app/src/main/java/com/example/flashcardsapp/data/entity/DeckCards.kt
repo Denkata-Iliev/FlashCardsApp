@@ -6,7 +6,6 @@ import androidx.room.Relation
 data class DeckCards(
     @Embedded val deck: Deck,
     @Relation(
-        entity = Deck::class,
         parentColumn = "id",
         entityColumn = "deckId"
     )

@@ -1,5 +1,6 @@
 package com.example.flashcardsapp.data.dao
 
+import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
@@ -9,6 +10,7 @@ import com.example.flashcardsapp.data.entity.Card
 import com.example.flashcardsapp.data.entity.DeckCards
 import kotlinx.coroutines.flow.Flow
 
+@Dao
 interface CardDao {
     @Insert
     suspend fun insertAll(vararg cards: Card)
@@ -21,8 +23,8 @@ interface CardDao {
 
     @Transaction
     @Query("SELECT * FROM decks")
-    suspend fun getAllCardsFromDeck(): Flow<List<DeckCards>>
+    fun getAllCardsFromDeck(): Flow<List<DeckCards>>
 
     @Query("SELECT * FROM cards WHERE id = :id")
-    suspend fun getById(id: Int): Flow<Card>
+    fun getById(id: Int): Flow<Card>
 }
