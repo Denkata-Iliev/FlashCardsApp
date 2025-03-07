@@ -75,4 +75,7 @@ dependencies {
 
     // JSON serialization library, works with the Kotlin serialization plugin
     implementation(libs.kotlinx.serialization.json)
+
+    // ViewModelScope
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
 }
