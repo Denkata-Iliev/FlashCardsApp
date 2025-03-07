@@ -69,8 +69,7 @@ fun DeckListScreen(
                         uiState = viewModel.createDeckUiState,
                         onCancel = { showDialog = false },
                         onCreate = {
-                            coroutineScope.launch {
-                                viewModel.createDeck()
+                            viewModel.createDeck {
                                 showDialog = false
                             }
                         },
@@ -131,10 +130,10 @@ fun DeckList(
 @Composable
 fun CreateDeckDialog(
     uiState: CreateDeckUiState,
-    modifier: Modifier = Modifier,
     onCancel: () -> Unit,
     onCreate: () -> Unit,
-    onTextValueChange: (String) -> Unit
+    onTextValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Dialog(
         onDismissRequest = {}
@@ -150,6 +149,15 @@ fun CreateDeckDialog(
                 label = { Text(stringResource(R.string.deck_name_hint)) },
                 modifier = modifier.fillMaxWidth()
             )
+
+            if (!uiState.errorMessage.value.isNullOrBlank()) {
+                Text(
+                    text = uiState.errorMessage.value!!,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             Row(
                 horizontalArrangement = Arrangement.SpaceAround,

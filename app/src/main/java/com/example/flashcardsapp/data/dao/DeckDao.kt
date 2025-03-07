@@ -25,4 +25,7 @@ interface DeckDao {
     @Query("SELECT * FROM decks WHERE id = :id")
     fun getById(id: Int): Flow<Deck>
 
+    @Query("SELECT COUNT(id) FROM decks WHERE LOWER(name) = LOWER(:name)")
+    suspend fun countByName(name: String): Int
+
 }

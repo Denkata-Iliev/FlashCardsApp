@@ -1,5 +1,6 @@
 package com.example.flashcardsapp.ui.deck
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class DeckListViewModel(private val deckRepository: DeckRepository) : ViewModel() {
     val deckListUiState: StateFlow<DeckListUiState> =
@@ -28,15 +30,31 @@ class DeckListViewModel(private val deckRepository: DeckRepository) : ViewModel(
         createDeckUiState = CreateDeckUiState(deckName)
     }
 
-    suspend fun createDeck() {
-        if (validateInput()) {
+    fun createDeck(onSuccess: () -> Unit) {
+        if (!validateInput()) {
+            return
+        }
+
+        viewModelScope.launch {
+            if (deckRepository.existsByName(createDeckUiState.deckName)) {
+                createDeckUiState.errorMessage.value = "A Deck with this name already exists!"
+                return@launch
+            }
+
             deckRepository.insertAll(Deck(0, createDeckUiState.deckName))
+            createDeckUiState = CreateDeckUiState()
+            onSuccess()
         }
     }
 
     private fun validateInput(createUiState: CreateDeckUiState = createDeckUiState): Boolean {
         return with(createUiState) {
-            deckName.isNotBlank()
+            if (deckName.isBlank()) {
+                errorMessage.value = "Deck name cannot be blank!"
+                return false
+            }
+
+            true
         }
     }
 
@@ -47,4 +65,7 @@ class DeckListViewModel(private val deckRepository: DeckRepository) : ViewModel(
 
 data class DeckListUiState(val decks: List<Deck> = listOf())
 
-data class CreateDeckUiState(val deckName: String = "")
+data class CreateDeckUiState(
+    val deckName: String = "",
+    val errorMessage: MutableState<String?> = mutableStateOf(null)
+)

@@ -14,4 +14,6 @@ class DeckRepository(private val deckDao: DeckDao) {
     fun getAll(): Flow<List<Deck>> = deckDao.getAll()
 
     fun getById(id: Int): Flow<Deck> = deckDao.getById(id)
+
+    suspend fun existsByName(name: String) = deckDao.countByName(name) >= 1
 }
