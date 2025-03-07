@@ -1,6 +1,5 @@
 package com.example.flashcardsapp.ui.deck
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -37,7 +36,7 @@ class DeckListViewModel(private val deckRepository: DeckRepository) : ViewModel(
 
         viewModelScope.launch {
             if (deckRepository.existsByName(createDeckUiState.deckName)) {
-                createDeckUiState.errorMessage.value = "A Deck with this name already exists!"
+                createDeckUiState = createDeckUiState.copy(errorMessage = "Deck name already exists!")
                 return@launch
             }
 
@@ -50,7 +49,7 @@ class DeckListViewModel(private val deckRepository: DeckRepository) : ViewModel(
     private fun validateInput(createUiState: CreateDeckUiState = createDeckUiState): Boolean {
         return with(createUiState) {
             if (deckName.isBlank()) {
-                errorMessage.value = "Deck name cannot be blank!"
+                createDeckUiState = createUiState.copy(errorMessage = "Deck name cannot be blank!")
                 return false
             }
 
@@ -67,5 +66,5 @@ data class DeckListUiState(val decks: List<Deck> = listOf())
 
 data class CreateDeckUiState(
     val deckName: String = "",
-    val errorMessage: MutableState<String?> = mutableStateOf(null)
+    val errorMessage: String? = null
 )

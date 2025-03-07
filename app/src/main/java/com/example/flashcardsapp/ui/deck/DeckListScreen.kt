@@ -63,20 +63,6 @@ fun DeckListScreen(
                     imageVector = Icons.Filled.Add,
                     contentDescription = stringResource(R.string.add_deck_btn_desc)
                 )
-
-                if (showDialog) {
-                    CreateDeckDialog(
-                        uiState = viewModel.createDeckUiState,
-                        onCancel = { showDialog = false },
-                        onCreate = {
-                            viewModel.createDeck {
-                                showDialog = false
-                            }
-                        },
-                        onTextValueChange = { viewModel.updateCreateUiState(it) },
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
             }
         }
     ) { padding ->
@@ -84,6 +70,20 @@ fun DeckListScreen(
             decks = deckListUiState.decks,
             contentPadding = padding
         )
+
+        if (showDialog) {
+            CreateDeckDialog(
+                uiState = viewModel.createDeckUiState,
+                onCancel = { showDialog = false },
+                onCreate = {
+                    viewModel.createDeck {
+                        showDialog = false
+                    }
+                },
+                onTextValueChange = { viewModel.updateCreateUiState(it) },
+                modifier = Modifier.padding(16.dp)
+            )
+        }
     }
 }
 
@@ -150,9 +150,9 @@ fun CreateDeckDialog(
                 modifier = modifier.fillMaxWidth()
             )
 
-            if (!uiState.errorMessage.value.isNullOrBlank()) {
+            if (!uiState.errorMessage.isNullOrBlank()) {
                 Text(
-                    text = uiState.errorMessage.value!!,
+                    text = uiState.errorMessage,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.fillMaxWidth()
