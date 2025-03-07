@@ -11,7 +11,8 @@ import com.example.flashcardsapp.data.entity.Deck
 
 @Database(
     entities = [Deck::class, Card::class],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 abstract class FlashCardDatabase : RoomDatabase() {
     abstract fun deckDao(): DeckDao
