@@ -29,6 +29,12 @@ class DeckListViewModel(private val deckRepository: DeckRepository) : ViewModel(
         createDeckUiState = CreateDeckUiState(deckName)
     }
 
+    suspend fun deleteByIds(ids: Set<Int>) {
+        val decks = ids.map { deckRepository.getById(it) }.toTypedArray()
+
+        deckRepository.deleteAll(*decks)
+    }
+
     fun createDeck(onSuccess: () -> Unit) {
         if (!validateInput()) {
             return
