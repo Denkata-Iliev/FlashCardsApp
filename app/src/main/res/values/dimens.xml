@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="dialog_padding">16dp</dimen>
+    <dimen name="icon_top_bar_size">32dp</dimen>
+    <dimen name="deck_item_padding">8dp</dimen>
+    <dimen name="deck_icon_size">64dp</dimen>
+</resources>

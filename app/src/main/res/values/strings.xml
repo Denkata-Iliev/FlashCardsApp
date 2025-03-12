@@ -2,8 +2,9 @@
     <string name="app_name">FlashCardsApp</string>
     <string name="deck_name_hint">Deck Name</string>
     <string name="cancel">Cancel</string>
-    <string name="create">Create</string>
+    <string name="save">Save</string>
     <string name="deck_icon_desc">Deck Icon</string>
     <string name="add_deck_btn_desc">Add Deck Button</string>
     <string name="no_decks_available">No Decks Available</string>
+    <string name="confirm">Confirm</string>
 </resources>
