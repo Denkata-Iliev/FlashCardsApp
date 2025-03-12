@@ -1,0 +1,202 @@
+package com.example.flashcardsapp.ui.deck
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.flashcardsapp.data.entity.Deck
+import com.example.flashcardsapp.data.repository.DeckRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+
+class DeckListViewModel(private val deckRepository: DeckRepository) : ViewModel() {
+    val deckListUiState: StateFlow<DeckListUiState> =
+        deckRepository.getAll().map { DeckListUiState(it) }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT),
+                initialValue = DeckListUiState()
+            )
+
+    var createDeckUiState by mutableStateOf(CreateDeckUiState())
+        private set
+
+    var showCreateDialog: Boolean by mutableStateOf(false)
+        private set
+
+    var showUpdateDialog: Boolean by mutableStateOf(false)
+        private set
+
+    var showDeleteConfirm: Boolean by mutableStateOf(false)
+        private set
+
+    private val _selectedIds = MutableStateFlow<Set<Int>>(emptySet())
+    val selectedIds = _selectedIds.asStateFlow()
+
+    private val _inSelectionMode = MutableStateFlow(false)
+    val inSelectionMode = _inSelectionMode.asStateFlow()
+
+    var deckToUpdate by mutableStateOf<Deck?>(null)
+        private set
+
+    fun addDeckToSelection(id: Int) {
+        _selectedIds.value += id
+    }
+
+    fun toggleDeckSelected(id: Int, selected: Boolean) {
+        if (selected) {
+            _selectedIds.value += id
+        } else {
+            _selectedIds.value -= id
+        }
+    }
+
+    fun selectAll(decks: List<Deck>) {
+        _selectedIds.value = decks.map { it.id }.toSet()
+    }
+
+    fun deselectAll() {
+        _selectedIds.value = emptySet()
+    }
+
+    private fun updateSelectionMode(newValue: Boolean) {
+        _inSelectionMode.value = newValue  // Set the value normally
+        _inSelectionMode.value = !_inSelectionMode.value  // Flip it
+        _inSelectionMode.value = newValue  // Set it back
+    }
+
+    fun enterSelectionMode() {
+        updateSelectionMode(true)
+    }
+
+    fun exitSelectionMode() {
+        updateSelectionMode(false)
+        _selectedIds.value = emptySet()
+    }
+
+    fun openDeleteConfirm() {
+        showDeleteConfirm = true
+    }
+
+    fun closeDeleteConfirm() {
+        showDeleteConfirm = false
+    }
+
+    fun openCreateDialog() {
+        showCreateDialog = true
+    }
+
+    fun closeCreateDialog() {
+        showCreateDialog = false
+        resetCreateUiState()
+    }
+
+    fun openUpdateDialog() {
+        viewModelScope.launch {
+            deckToUpdate = getById(_selectedIds.value.first())
+            showUpdateDialog = true
+            updateCreateUiState(deckToUpdate!!.id, deckToUpdate!!.name)
+        }
+    }
+
+    fun closeUpdateDialog() {
+        showUpdateDialog = false
+        resetCreateUiState()
+    }
+
+    fun updateCreateUiState(deckName: String) {
+        createDeckUiState = createDeckUiState.copy(
+            deckName = deckName,
+            errorMessage = null
+        )
+    }
+
+    fun deleteByIds(ids: Set<Int>) {
+        viewModelScope.launch {
+            val decks = ids.map { deckRepository.getById(it) }.toTypedArray()
+
+            deckRepository.deleteAll(*decks)
+
+            closeDeleteConfirm()
+            exitSelectionMode()
+        }
+    }
+
+    fun updateDeck() {
+        if (!validateInput()) {
+            return
+        }
+
+        viewModelScope.launch {
+            if (deckRepository.existsByName(createDeckUiState.deckName.trim())) {
+                createDeckUiState = createDeckUiState.copy(errorMessage = "This deck already exists!")
+                return@launch
+            }
+
+            deckRepository.update(Deck(createDeckUiState.id, createDeckUiState.deckName.trim()))
+            createDeckUiState = CreateDeckUiState()
+            closeUpdateDialog()
+            exitSelectionMode()
+        }
+
+    }
+
+    fun createDeck() {
+        if (!validateInput()) {
+            return
+        }
+
+        viewModelScope.launch {
+            if (deckRepository.existsByName(createDeckUiState.deckName.trim())) {
+                createDeckUiState = createDeckUiState.copy(errorMessage = "This deck already exists!")
+                return@launch
+            }
+
+            deckRepository.insertAll(Deck(0, createDeckUiState.deckName.trim()))
+            createDeckUiState = CreateDeckUiState()
+            closeCreateDialog()
+        }
+    }
+
+    private fun validateInput(createUiState: CreateDeckUiState = createDeckUiState): Boolean {
+        return with(createUiState) {
+            if (deckName.trim().isBlank()) {
+                createDeckUiState = createUiState.copy(errorMessage = "Deck name cannot be blank!")
+                return false
+            }
+
+            true
+        }
+    }
+
+    private fun updateCreateUiState(id: Int, deckName: String) {
+        createDeckUiState = createDeckUiState.copy(
+            id = id,
+            deckName = deckName
+        )
+    }
+
+    private fun resetCreateUiState() {
+        createDeckUiState = CreateDeckUiState()
+    }
+
+    private suspend fun getById(id: Int) = deckRepository.getById(id)
+
+    companion object {
+        private const val TIMEOUT = 5000L
+    }
+}
+
+data class DeckListUiState(val decks: List<Deck> = listOf())
+
+data class CreateDeckUiState(
+    val id: Int = 0,
+    val deckName: String = "",
+    val errorMessage: String? = null
+)
