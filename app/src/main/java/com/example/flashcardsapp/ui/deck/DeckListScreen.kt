@@ -1,7 +1,11 @@
 package com.example.flashcardsapp.ui.deck
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -98,7 +102,11 @@ fun DeckListScreen(
             CenterAlignedTopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
                 navigationIcon = {
-                    if (inSelectionMode) {
+                    AnimatedVisibility(
+                        visible = inSelectionMode,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
                         Row {
                             IconButton(
                                 onClick = { viewModel.exitSelectionMode() }
@@ -112,7 +120,9 @@ fun DeckListScreen(
                     }
                 },
                 actions = {
-                    if (selectedIds.size == 1) {
+                    AnimatedVisibility(
+                        visible = selectedIds.size == 1
+                    ) {
                         IconButton(
                             onClick = { viewModel.openUpdateDialog() }
                         ) {
@@ -124,7 +134,9 @@ fun DeckListScreen(
                         }
                     }
 
-                    if (selectedIds.isNotEmpty()) {
+                    AnimatedVisibility (
+                        visible = selectedIds.isNotEmpty()
+                    ) {
                         IconButton(
                             onClick = { viewModel.openDeleteConfirm() }
                         ) {
@@ -140,7 +152,9 @@ fun DeckListScreen(
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
-            if (inSelectionMode) {
+            AnimatedVisibility(
+                visible = inSelectionMode
+            ) {
                 Row {
                     Column {
                         if (selectedIds.size != deckListUiState.decks.size) {
@@ -190,7 +204,9 @@ fun DeckListScreen(
             }
         }
 
-        if (showDeleteConfirm) {
+        AnimatedVisibility(
+            visible = showDeleteConfirm
+        ) {
             BasicAlertDialog(
                 onDismissRequest = { viewModel.closeDeleteConfirm() },
                 properties = DialogProperties(
@@ -254,7 +270,10 @@ fun DeckListScreen(
             }
         }
 
-        if (showCreateDialog) {
+        AnimatedVisibility(
+            visible = showCreateDialog,
+            exit = ExitTransition.None
+        ) {
             CreateDeckDialog(
                 uiState = viewModel.createDeckUiState,
                 onCancel = { viewModel.closeCreateDialog() },
@@ -264,7 +283,10 @@ fun DeckListScreen(
             )
         }
 
-        if (showUpdateDialog && deckToUpdate != null) {
+        AnimatedVisibility(
+            visible = showUpdateDialog && deckToUpdate != null,
+            exit = ExitTransition.None
+        ) {
             CreateDeckDialog(
                 uiState = viewModel.createDeckUiState,
                 onCancel = { viewModel.closeUpdateDialog() },
