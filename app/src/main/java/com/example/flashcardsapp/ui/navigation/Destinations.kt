@@ -4,3 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 object StartDestination
+
+@Serializable
+data class CardListDestination(val deckId: Int = 0)

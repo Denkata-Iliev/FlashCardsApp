@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +56,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -74,6 +76,7 @@ import com.example.flashcardsapp.ui.FlashCardAppViewModelProvider
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeckListScreen(
+    navigateToDeck: (Int) -> Unit,
     viewModel: DeckListViewModel = viewModel(factory = FlashCardAppViewModelProvider.Factory)
 ) {
     val deckListUiState by viewModel.deckListUiState.collectAsState()
@@ -147,9 +150,11 @@ fun DeckListScreen(
                             )
                         }
                     }
-                }
+                },
+                modifier = Modifier.shadow(elevation = dimensionResource(R.dimen.top_app_bar_elevation))
             )
-        }
+        },
+        modifier = Modifier.shadow(elevation = dimensionResource(R.dimen.top_app_bar_elevation))
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
             AnimatedVisibility(
@@ -195,6 +200,7 @@ fun DeckListScreen(
                 contentPadding = PaddingValues(0.dp),
                 selectedIds = selectedIds,
                 inSelectionMode = inSelectionMode,
+                onNavigateToDeck = navigateToDeck,
                 onDeckClicked = { id, selected ->
                     viewModel.toggleDeckSelected(id, selected)
                 },
@@ -306,6 +312,7 @@ private fun DeckList(
     addDeckToSelection: (Int) -> Unit,
     inSelectionMode: Boolean,
     contentPadding: PaddingValues = PaddingValues(0.dp),
+    onNavigateToDeck: (Int) -> Unit,
     enterSelectionMode: () -> Unit,
 ) {
     val state = rememberLazyGridState()
@@ -340,6 +347,11 @@ private fun DeckList(
                             onLongPress = {
                                 enterSelectionMode()
                                 addDeckToSelection(deck.id)
+                            },
+                            onTap = {
+                                if (!inSelectionMode) {
+                                    onNavigateToDeck(deck.id)
+                                }
                             }
                         )
                     }

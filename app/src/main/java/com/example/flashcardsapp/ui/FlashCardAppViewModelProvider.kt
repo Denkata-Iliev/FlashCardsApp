@@ -5,6 +5,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.flashcardsapp.FlashCardApplication
+import com.example.flashcardsapp.ui.card.CardListViewModel
 import com.example.flashcardsapp.ui.deck.DeckListViewModel
 
 object FlashCardAppViewModelProvider {
@@ -12,6 +13,12 @@ object FlashCardAppViewModelProvider {
         initializer {
             DeckListViewModel(
                 flashCardApplication().container.deckRepository
+            )
+        }
+
+        initializer {
+            CardListViewModel(
+                flashCardApplication().container.cardRepository
             )
         }
     }
