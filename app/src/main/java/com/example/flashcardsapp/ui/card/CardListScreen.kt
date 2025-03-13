@@ -8,8 +8,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -37,6 +38,10 @@ import com.example.flashcardsapp.ui.FlashCardAppViewModelProvider
 fun CardListScreen(
     deckId: Int,
     onNavigateBackUp: () -> Unit,
+    onNavigateToStandardStudy: () -> Unit,
+    onNavigateToTimedStudy: () -> Unit,
+    onNavigateToAdvancedStudy: () -> Unit,
+    onNavigateToAddCards: () -> Unit,
     viewModel: CardListViewModel = viewModel(factory = FlashCardAppViewModelProvider.Factory)
 ) {
     val cardListUiState by viewModel.cardListUiState(deckId).collectAsState()
@@ -46,21 +51,27 @@ fun CardListScreen(
             FabMenu(
                 listOf(
                     { FabMenuItem(
-                        icon = Icons.Filled.Call,
-                        label = "Label",
-                        onClick = {}
+                        painter = painterResource(R.drawable.advanced_study_24px),
+                        label = "Advanced Study",
+                        onClick = onNavigateToAdvancedStudy
                     ) },
 
                     { FabMenuItem(
-                        icon = Icons.Filled.Call,
-                        label = "Label",
-                        onClick = {}
+                        painter = painterResource(R.drawable.hourglass_bottom_24px),
+                        label = "Timed Study",
+                        onClick = onNavigateToTimedStudy
                     ) },
 
                     { FabMenuItem(
-                        icon = Icons.Filled.Call,
-                        label = "Label",
-                        onClick = {}
+                        icon = Icons.Filled.PlayArrow,
+                        label = "Standard Study",
+                        onClick = onNavigateToStandardStudy
+                    ) },
+
+                    { FabMenuItem(
+                        icon = Icons.Filled.Add,
+                        label = "Add Cards",
+                        onClick = onNavigateToAddCards
                     ) }
                 )
             )

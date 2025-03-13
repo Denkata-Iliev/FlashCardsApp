@@ -31,7 +31,11 @@ fun FlashCardNavHost(
                 deckId = cardListDest.deckId,
                 onNavigateBackUp = {
                     navController.navigateUp()
-                }
+                },
+                onNavigateToAddCards = {},
+                onNavigateToStandardStudy = {},
+                onNavigateToTimedStudy = {},
+                onNavigateToAdvancedStudy = {}
             )
         }
     }

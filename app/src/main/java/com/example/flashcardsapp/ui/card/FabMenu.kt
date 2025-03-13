@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
@@ -166,6 +167,27 @@ fun FabMenuItem(
 }
 
 @Composable
+fun FabMenuItem(
+    painter: Painter,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        FabMenuItemLabel(text = label)
+
+        FabMenuItemButton(
+            painter = painter,
+            onClick = onClick
+        )
+    }
+}
+
+@Composable
 private fun FabMenuItemLabel(
     text: String,
     modifier: Modifier = Modifier
@@ -202,6 +224,24 @@ private fun FabMenuItemButton(
     ) {
         Icon(
             imageVector = icon,
+            contentDescription = ""
+        )
+    }
+}
+
+@Composable
+private fun FabMenuItemButton(
+    painter: Painter,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    FloatingActionButton(
+        onClick = onClick,
+        modifier = modifier,
+        shape = CircleShape
+    ) {
+        Icon(
+            painter = painter,
             contentDescription = ""
         )
     }
