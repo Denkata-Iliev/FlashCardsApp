@@ -9,7 +9,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -93,6 +92,7 @@ fun DeckListScreen(
             FloatingActionButton(
                 onClick = { viewModel.openCreateDialog() },
                 modifier = Modifier
+                    .padding(dimensionResource(R.dimen.default_padding))
                     .clip(CircleShape)
             ) {
                 Icon(
@@ -220,7 +220,7 @@ fun DeckListScreen(
                     dismissOnClickOutside = true,
                     usePlatformDefaultWidth = true
                 ),
-                modifier = Modifier.padding(dimensionResource(R.dimen.dialog_padding))
+                modifier = Modifier.padding(dimensionResource(R.dimen.default_padding))
             ) {
                 Card(
                     modifier = Modifier.fillMaxWidth()
@@ -231,7 +231,7 @@ fun DeckListScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(dimensionResource(R.dimen.dialog_padding))
+                            .padding(dimensionResource(R.dimen.default_padding))
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Warning,
@@ -285,7 +285,7 @@ fun DeckListScreen(
                 onCancel = { viewModel.closeCreateDialog() },
                 onCreate = { viewModel.createDeck() },
                 onTextValueChange = { viewModel.updateCreateUiState(it) },
-                modifier = Modifier.padding(dimensionResource(R.dimen.dialog_padding))
+                modifier = Modifier.padding(dimensionResource(R.dimen.default_padding))
             )
         }
 
@@ -298,7 +298,7 @@ fun DeckListScreen(
                 onCancel = { viewModel.closeUpdateDialog() },
                 onCreate = { viewModel.updateDeck() },
                 onTextValueChange = { viewModel.updateCreateUiState(it) },
-                modifier = Modifier.padding(dimensionResource(R.dimen.dialog_padding))
+                modifier = Modifier.padding(dimensionResource(R.dimen.default_padding))
             )
         }
     }
@@ -451,7 +451,7 @@ private fun CreateDeckDialog(
         Card(
             modifier = modifier
                 .fillMaxWidth(),
-            shape = RoundedCornerShape(dimensionResource(R.dimen.dialog_padding))
+            shape = RoundedCornerShape(dimensionResource(R.dimen.default_padding))
         ) {
             val focusRequester = remember { FocusRequester() }
             OutlinedTextField(
