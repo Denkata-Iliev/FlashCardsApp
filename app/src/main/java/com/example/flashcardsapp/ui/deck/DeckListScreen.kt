@@ -322,7 +322,9 @@ private fun DeckList(
             text = stringResource(R.string.no_decks_available),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(contentPadding)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(contentPadding)
         )
         return
     }
