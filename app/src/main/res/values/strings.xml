@@ -8,4 +8,11 @@
     <string name="no_decks_available">No Decks Available</string>
     <string name="confirm">Confirm</string>
     <string name="no_cards_in_deck">There are no cards in this deck yet</string>
+    <string name="add_cards_to_deck">Add cards to deck</string>
+    <string name="back_arrow">Back Arrow</string>
+    <string name="question">Question</string>
+    <string name="answer">Answer</string>
+    <string name="update_card">Update Card</string>
+    <string name="edit_icon">Edit Icon</string>
+    <string name="card_icon">Card Icon</string>
 </resources>

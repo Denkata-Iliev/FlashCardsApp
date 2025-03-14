@@ -19,8 +19,6 @@ class CardListViewModel(private val cardRepository: CardRepository) : ViewModel(
             initialValue = CardListUiState(DeckCards())
         )
 
-
-
     companion object {
         const val TIMEOUT = 5000L
     }

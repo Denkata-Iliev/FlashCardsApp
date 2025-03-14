@@ -14,6 +14,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -29,6 +30,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcardsapp.R
@@ -52,12 +54,12 @@ fun AddCardsScreen(
         },
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = "Add cards to deck") },
+                title = { Text(text = stringResource(R.string.add_cards_to_deck)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBackUp) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back Arrow"
+                            contentDescription = stringResource(R.string.back_arrow)
                         )
                     }
                 },
@@ -72,9 +74,10 @@ fun AddCardsScreen(
             onValueChange = viewModel::updateUiState,
             onSaveClick = {
                 coroutineScope.launch {
-                    viewModel.addCard(deckId)
-                    viewModel.requestFocus(focusRequester)
-                    viewModel.displaySnackbar(snackbarHostState)
+                    if (viewModel.addCard(deckId)) {
+                        viewModel.requestFocus(focusRequester)
+                        viewModel.displaySnackbar(snackbarHostState)
+                    }
                 }
             },
             focusRequester = focusRequester,
@@ -111,7 +114,7 @@ fun AddCardBody(
             modifier = Modifier
                 .fillMaxWidth(fraction = 0.75f)
         ) {
-            Text(text = "Save")
+            Text(text = stringResource(R.string.save))
         }
     }
 }
@@ -138,7 +141,7 @@ fun AddCardInputForm(
         OutlinedTextField(
             value = uiState.question,
             onValueChange = { onValueChange(uiState.copy(question = it)) },
-            label = { Text(text = "Question") },
+            label = { Text(text = stringResource(R.string.question)) },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             keyboardActions = KeyboardActions(
                 onNext = {
@@ -149,7 +152,10 @@ fun AddCardInputForm(
                 .focusRequester(focusRequester)
         )
         if (uiState.questionErrorMessage != null) {
-            Text(text = uiState.questionErrorMessage)
+            Text(
+                text = uiState.questionErrorMessage,
+                color = MaterialTheme.colorScheme.error
+            )
         }
 
         OutlinedTextField(
@@ -159,12 +165,15 @@ fun AddCardInputForm(
             keyboardActions = KeyboardActions(
                 onDone = { onDone() }
             ),
-            label = { Text(text = "Answer") },
+            label = { Text(text = stringResource(R.string.answer)) },
             modifier = modifier
                 .focusRequester(answerFocusRequester)
         )
         if (uiState.answerErrorMessage != null) {
-            Text(text = uiState.answerErrorMessage)
+            Text(
+                text = uiState.answerErrorMessage,
+                color = MaterialTheme.colorScheme.error
+            )
         }
     }
 }

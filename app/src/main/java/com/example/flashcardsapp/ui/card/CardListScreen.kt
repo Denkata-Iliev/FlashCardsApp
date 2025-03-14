@@ -45,6 +45,7 @@ fun CardListScreen(
     onNavigateToTimedStudy: () -> Unit,
     onNavigateToAdvancedStudy: () -> Unit,
     onNavigateToAddCards: () -> Unit,
+    onNavigateToCard: (Int) -> Unit,
     viewModel: CardListViewModel = viewModel(factory = FlashCardAppViewModelProvider.Factory)
 ) {
     val cardListUiState by viewModel.cardListUiState(deckId).collectAsState()
@@ -88,7 +89,7 @@ fun CardListScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back Arrow"
+                            contentDescription = stringResource(R.string.back_arrow)
                         )
                     }
                 },
@@ -121,7 +122,7 @@ fun CardListScreen(
                     leadingContent = {
                         Icon(
                             painter = painterResource(R.drawable.card_icon),
-                            contentDescription = "",
+                            contentDescription = stringResource(R.string.card_icon),
                             tint = Color.Unspecified,
                             modifier = Modifier.size(dimensionResource(R.dimen.icon_top_bar_size))
                         )
@@ -130,10 +131,14 @@ fun CardListScreen(
                         Text(text = card.question)
                     },
                     trailingContent = {
-                        Icon(
-                            imageVector = Icons.Filled.Edit,
-                            contentDescription = ""
-                        )
+                        IconButton(
+                            onClick = { onNavigateToCard(card.id) }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Edit,
+                                contentDescription = stringResource(R.string.edit_icon)
+                            )
+                        }
                     },
                     tonalElevation = 3.dp,
                 )
