@@ -9,7 +9,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,8 +24,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
@@ -49,8 +52,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,19 +63,28 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.toIntRect
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcardsapp.R
 import com.example.flashcardsapp.data.entity.Deck
 import com.example.flashcardsapp.ui.FlashCardAppViewModelProvider
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -204,6 +218,7 @@ fun DeckListScreen(
                 onDeckClicked = { id, selected ->
                     viewModel.toggleDeckSelected(id, selected)
                 },
+                onMultipleSelected = { k1, k2, k3 -> viewModel.addRangeToSelection(k1, k2, k3) },
                 addDeckToSelection = { viewModel.addDeckToSelection(it) }
             ) {
                 viewModel.enterSelectionMode()
@@ -313,9 +328,22 @@ private fun DeckList(
     inSelectionMode: Boolean,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     onNavigateToDeck: (Int) -> Unit,
+    onMultipleSelected: (Int, Int, Int) -> Unit,
     enterSelectionMode: () -> Unit,
 ) {
     val state = rememberLazyGridState()
+
+    // defines scroll speed when in selection mode and dragging
+    val autoScrollSpeed = remember { mutableFloatStateOf(0f) }
+    LaunchedEffect(autoScrollSpeed.floatValue) {
+        if (autoScrollSpeed.floatValue != 0f) {
+            while (isActive) {
+                state.scrollBy(autoScrollSpeed.floatValue)
+                delay(10)
+            }
+        }
+    }
+//    val state = rememberLazyGridState()
 
     if (decks.isEmpty()) {
         Text(
@@ -334,9 +362,21 @@ private fun DeckList(
         columns = GridCells.Adaptive(75.dp),
         modifier = Modifier
             .padding(contentPadding)
+            .selectDragHandler(
+                lazyGridState = state,
+                haptics = LocalHapticFeedback.current,
+                autoScrollSpeed = autoScrollSpeed,
+                autoScrollThreshold = with(LocalDensity.current) { 40.dp.toPx() },
+                onMultipleSelected = onMultipleSelected,
+                onOneSelected = addDeckToSelection,
+                selectedIds = selectedIds
+            )
     ) {
-        items(items = decks, key = { it.id }) { deck ->
-            val selected = selectedIds.contains(deck.id)
+        itemsIndexed(
+            items = decks,
+            key = { index, _ -> index }
+        ) { index, deck ->
+            val selected = selectedIds.contains(index)
 
             DeckItem(
                 deck = deck,
@@ -348,7 +388,7 @@ private fun DeckList(
                         detectTapGestures(
                             onLongPress = {
                                 enterSelectionMode()
-                                addDeckToSelection(deck.id)
+                                addDeckToSelection(index)
                             },
                             onTap = {
                                 if (!inSelectionMode) {
@@ -365,7 +405,7 @@ private fun DeckList(
                                 value = selected,
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
-                                onValueChange = { onDeckClicked(deck.id, it) }
+                                onValueChange = { onDeckClicked(index, it) }
                             )
                         } else Modifier
                     )
@@ -497,4 +537,76 @@ private fun CreateDeckDialog(
             }
         }
     }
+}
+
+fun Modifier.selectDragHandler(
+    lazyGridState: LazyGridState,
+    haptics: HapticFeedback,
+    selectedIds: Set<Int>,
+    onMultipleSelected: (Int, Int, Int) -> Unit,
+    onOneSelected: (Int) -> Unit,
+    autoScrollSpeed: MutableState<Float>,
+    autoScrollThreshold: Float
+) = pointerInput(Unit) {
+
+    // gets the item key (deck id in this case) at clicked position
+    fun LazyGridState.gridItemKeyAtPosition(hitPoint: Offset): Int? =
+        layoutInfo.visibleItemsInfo.find { itemInfo ->
+            itemInfo.size.toIntRect().contains(hitPoint.round() - itemInfo.offset)
+        }?.key as? Int
+
+    // initially long-clicked item and current item
+    var initialKey: Int? = null
+    var currentKey: Int? = null
+
+    detectDragGesturesAfterLongPress(
+        onDragStart = { offset ->
+            // when long click on item, get it and add it to selection
+            lazyGridState.gridItemKeyAtPosition(offset)?.let { key ->
+                if (!selectedIds.contains(key)) {
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    initialKey = key
+                    currentKey = key
+                    onOneSelected(key)
+                }
+            }
+        },
+        onDragCancel = {
+            initialKey = null
+            autoScrollSpeed.value = 0f
+        },
+        onDragEnd = {
+            initialKey = null
+            autoScrollSpeed.value = 0f
+        },
+        onDrag = { change, _ ->
+            if (initialKey == null) {
+                return@detectDragGesturesAfterLongPress
+            }
+
+            val distFromBottom =
+                lazyGridState.layoutInfo.viewportSize.height - change.position.y
+
+            val distFromTop = change.position.y
+
+            // determine autoScrollSpeed based on how far away
+            // the finger is from the top or bottom of the screen
+            autoScrollSpeed.value = when {
+                distFromBottom < autoScrollThreshold -> autoScrollThreshold - distFromBottom
+                distFromTop < autoScrollThreshold -> -(autoScrollThreshold - distFromTop)
+                else -> 0f
+            }
+
+            lazyGridState.gridItemKeyAtPosition(change.position)?.let { key ->
+                if (currentKey == null) {
+                    return@let
+                }
+
+                // add items from initial item to current item to the selection
+                onMultipleSelected(initialKey!!, currentKey!!, key)
+
+                currentKey = key
+            }
+        }
+    )
 }

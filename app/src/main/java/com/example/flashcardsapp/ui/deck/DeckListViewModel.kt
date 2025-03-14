@@ -49,6 +49,14 @@ class DeckListViewModel(private val deckRepository: DeckRepository) : ViewModel(
         _selectedIds.value += id
     }
 
+    fun addRangeToSelection(k1: Int, k2: Int, k3: Int) {
+        _selectedIds.value = _selectedIds.value
+            .minus(k1..k2)
+            .minus(k2..k1)
+            .plus(k1..k3)
+            .plus(k3..k1)
+    }
+
     fun toggleDeckSelected(id: Int, selected: Boolean) {
         if (selected) {
             _selectedIds.value += id
@@ -58,7 +66,7 @@ class DeckListViewModel(private val deckRepository: DeckRepository) : ViewModel(
     }
 
     fun selectAll(decks: List<Deck>) {
-        _selectedIds.value = decks.map { it.id }.toSet()
+        _selectedIds.value = List(decks.size) { it }.toSet()
     }
 
     fun deselectAll() {
@@ -99,7 +107,8 @@ class DeckListViewModel(private val deckRepository: DeckRepository) : ViewModel(
 
     fun openUpdateDialog() {
         viewModelScope.launch {
-            deckToUpdate = getById(_selectedIds.value.first())
+            val deckIndex = _selectedIds.value.first()
+            deckToUpdate = getById(deckListUiState.value.decks[deckIndex].id)
             showUpdateDialog = true
             updateCreateUiState(deckToUpdate!!.id, deckToUpdate!!.name)
         }
@@ -119,7 +128,9 @@ class DeckListViewModel(private val deckRepository: DeckRepository) : ViewModel(
 
     fun deleteByIds(ids: Set<Int>) {
         viewModelScope.launch {
-            val decks = ids.map { deckRepository.getById(it) }.toTypedArray()
+            val decks = ids.map {
+                deckRepository.getById(deckListUiState.value.decks[it].id)
+            }.toTypedArray()
 
             deckRepository.deleteAll(*decks)
 
