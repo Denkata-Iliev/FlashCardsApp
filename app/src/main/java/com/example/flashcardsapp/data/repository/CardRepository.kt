@@ -9,4 +9,5 @@ class CardRepository(private val cardDao: CardDao) {
     suspend fun insert(card: Card) = cardDao.insertAll(card)
     suspend fun getById(id: Int) = cardDao.getById(id)
     suspend fun update(card: Card) = cardDao.update(card)
+    suspend fun delete(vararg cards: Card) = cardDao.deleteAll(*cards)
 }

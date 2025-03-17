@@ -159,7 +159,7 @@ fun DeckListScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Delete,
-                                contentDescription = "Delete Icon",
+                                contentDescription = stringResource(R.string.delete_icon),
                                 modifier = Modifier.size(dimensionResource(R.dimen.icon_top_bar_size))
                             )
                         }
@@ -228,67 +228,13 @@ fun DeckListScreen(
         AnimatedVisibility(
             visible = showDeleteConfirm
         ) {
-            BasicAlertDialog(
-                onDismissRequest = { viewModel.closeDeleteConfirm() },
-                properties = DialogProperties(
-                    dismissOnBackPress = true,
-                    dismissOnClickOutside = true,
-                    usePlatformDefaultWidth = true
-                ),
-                modifier = Modifier.padding(dimensionResource(R.dimen.default_padding))
-            ) {
-                Card(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(dimensionResource(R.dimen.default_padding))
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Warning,
-                            contentDescription = "Delete warning",
-                            modifier = Modifier.size(48.dp)
-                        )
-
-                        Text(
-                            text = "Are you sure you want to delete " +
-                                    " ${if (selectedIds.size > 1) "these" else "this"} " +
-                                    " deck${if (selectedIds.size > 1) "s" else ""}?",
-                            textAlign = TextAlign.Center,
-                            color = Color.Black
-                        )
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceAround,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            TextButton(
-                                onClick = { viewModel.closeDeleteConfirm() },
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.cancel),
-                                    fontSize = MaterialTheme.typography.bodyLarge.fontSize
-                                )
-                            }
-
-                            TextButton(
-                                onClick = { viewModel.deleteByIds(selectedIds) }
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.confirm),
-                                    fontSize = MaterialTheme.typography.bodyLarge.fontSize
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+            DeleteConfirmDialog(
+                text = "Are you sure you want to delete "
+                        + if (selectedIds.size > 1) "these decks?" else "this deck?",
+                onDismiss = { viewModel.closeDeleteConfirm() },
+                onCancel = { viewModel.closeDeleteConfirm() },
+                onConfirm = { viewModel.deleteByIds(selectedIds) },
+            )
         }
 
         AnimatedVisibility(
@@ -315,6 +261,75 @@ fun DeckListScreen(
                 onTextValueChange = { viewModel.updateCreateUiState(it) },
                 modifier = Modifier.padding(dimensionResource(R.dimen.default_padding))
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DeleteConfirmDialog(
+    text: String,
+    onDismiss: () -> Unit,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    BasicAlertDialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true,
+            usePlatformDefaultWidth = true
+        ),
+        modifier = Modifier.padding(dimensionResource(R.dimen.default_padding))
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(dimensionResource(R.dimen.default_padding))
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Warning,
+                    contentDescription = "Delete warning",
+                    modifier = Modifier.size(48.dp)
+                )
+
+                Text(
+                    text = text,
+                    textAlign = TextAlign.Center,
+                    color = Color.Black
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(
+                        onClick = onCancel,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.cancel),
+                            fontSize = MaterialTheme.typography.bodyLarge.fontSize
+                        )
+                    }
+
+                    TextButton(
+                        onClick = onConfirm
+                    ) {
+                        Text(
+                            text = stringResource(R.string.confirm),
+                            fontSize = MaterialTheme.typography.bodyLarge.fontSize
+                        )
+                    }
+                }
+            }
         }
     }
 }
