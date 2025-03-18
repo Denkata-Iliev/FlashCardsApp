@@ -22,9 +22,9 @@ interface CardDao {
     suspend fun deleteAll(vararg cards: Card)
 
     @Transaction
-    @Query("SELECT * FROM decks")
-    fun getAllCardsFromDeck(): Flow<List<DeckCards>>
+    @Query("SELECT * FROM decks WHERE id = :deckId")
+    fun getAllCardsFromDeck(deckId: Int): Flow<DeckCards>
 
     @Query("SELECT * FROM cards WHERE id = :id")
-    fun getById(id: Int): Flow<Card>
+    suspend fun getById(id: Int): Card
 }
