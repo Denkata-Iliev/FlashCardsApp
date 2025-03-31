@@ -27,4 +27,12 @@ interface CardDao {
 
     @Query("SELECT * FROM cards WHERE id = :id")
     suspend fun getById(id: Int): Card
+
+    @Query("""
+        SELECT * FROM cards
+        WHERE :currentTime >= lastReviewed + (interval * 60 * 60 * 1000) AND deckId = :deckId
+        ORDER BY lastReviewed ASC
+        LIMIT :limit
+        """)
+    suspend fun getDueCards(currentTime: Long, limit: Int, deckId: Int): List<Card>
 }
