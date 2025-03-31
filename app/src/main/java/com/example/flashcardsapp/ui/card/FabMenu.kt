@@ -44,7 +44,7 @@ fun FabMenu(
     items: List<@Composable () -> Unit>,
     modifier: Modifier = Modifier
 ) {
-    var fabMenuState by rememberSaveable { mutableStateOf(FabMenuState.COLLAPSED) }
+    var fabMenuState by rememberSaveable { mutableStateOf(FabMenuState.Collapsed) }
 
     Column(
         horizontalAlignment = Alignment.End,
@@ -55,7 +55,7 @@ fun FabMenu(
             .padding(dimensionResource(R.dimen.default_padding))
     ) {
         FabMenuWrapper(
-            expanded = fabMenuState == FabMenuState.EXPANDED,
+            expanded = fabMenuState == FabMenuState.Expanded,
             items = items,
         )
 
@@ -116,10 +116,10 @@ private fun FabMenuButton(
     onClick: (FabMenuState) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val nextMenuState = if (state == FabMenuState.EXPANDED) {
-        FabMenuState.COLLAPSED
+    val nextMenuState = if (state == FabMenuState.Expanded) {
+        FabMenuState.Collapsed
     } else {
-        FabMenuState.EXPANDED
+        FabMenuState.Expanded
     }
 
     FloatingActionButton(
@@ -130,7 +130,7 @@ private fun FabMenuButton(
         Crossfade(targetState = state) { currentState ->
             // note that it's required to use the value passed by Crossfade
             // instead of your state value
-            if (currentState == FabMenuState.EXPANDED) {
+            if (currentState == FabMenuState.Expanded) {
                 Icon(
                     imageVector = Icons.Filled.Close,
                     contentDescription = "",
@@ -248,6 +248,6 @@ private fun FabMenuItemButton(
 }
 
 enum class FabMenuState {
-    EXPANDED,
-    COLLAPSED
+    Expanded,
+    Collapsed
 }

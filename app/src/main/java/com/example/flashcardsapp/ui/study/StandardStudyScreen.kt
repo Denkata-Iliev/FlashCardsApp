@@ -30,14 +30,13 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcardsapp.R
-import com.example.flashcardsapp.data.entity.Card
 import com.example.flashcardsapp.ui.CustomFactories
 import kotlinx.coroutines.delay
-import kotlin.math.max
 
 @Composable
 fun StandardStudyScreen(
@@ -63,7 +62,10 @@ fun StandardStudyScreen(
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                Text(text = "You have no due cards in this deck")
+                Text(
+                    text = stringResource(R.string.no_due_cards_for_session),
+                    style = MaterialTheme.typography.titleLarge
+                )
             }
 
             return@Scaffold
@@ -76,7 +78,10 @@ fun StandardStudyScreen(
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                Text(text = "should mean done")
+                Text(
+                    text = stringResource(R.string.could_not_retrieve_card),
+                    style = MaterialTheme.typography.titleLarge
+                )
             }
 
             return@Scaffold
@@ -112,19 +117,14 @@ fun StandardStudyScreen(
             }
 
             fun nextCard(quality: RememberQuality) {
-                val card1 = updateCard(card!!, quality.recallScore)
-                viewModel.updateCard(card1)
+                viewModel.updateCard(card!!, quality.recallScore)
 
                 flipCard()
             }
 
             if (answerShown) {
                 AlgorithmButtonRow(
-                    onVeryHardClicked = { nextCard(it) },
-                    onHardClicked = { nextCard(it) },
-                    onMediumClicked = { nextCard(it) },
-                    onEasyClicked = { nextCard(it) },
-                    onTooEasyClicked = { nextCard(it) }
+                    onRememberQualityClicked = { nextCard(it) }
                 )
 
             } else {
@@ -133,7 +133,7 @@ fun StandardStudyScreen(
                         state = state.next
                         answerShown = true
                     }
-                ) { Text("Show Answer") }
+                ) { Text(text = stringResource(R.string.show_answer)) }
             }
 
             // delay changing the card until the it is finished flipping back,
@@ -149,47 +149,10 @@ fun StandardStudyScreen(
     }
 }
 
-fun updateCard(card: Card, recallScore: Int): Card {
-    // all of the magic numbers are based on the official implementation of
-    // the spaced repetition algorithm of SM-2: https://github.com/thyagoluciano/sm2
-
-    // modification: instead of interval going from 1 to 6 days on the first and second review,
-    // I've decided it'll be better if the cards appear a bit more often,
-    // going from 12 to 24 to 48 hours on the first, second and third review respectively,
-    // after which, the interval is based on the ease factor
-    if (recallScore >= 3) {
-        when (card.repCount) {
-            0, 1 -> card.interval = 12.0
-            2 -> card.interval = 24.0
-            3 -> card.interval = 48.0
-            else -> card.interval *= card.easeFactor
-        }
-
-        // Update the repetition count
-        card.repCount++
-
-        // Update ease factor based on recall score
-        card.easeFactor += (0.1 - (5 - recallScore) * (0.08 + (5 - recallScore) * 0.02))
-        card.easeFactor = max(1.3, card.easeFactor) // Prevent ease factor from going below 1.3
-    } else {
-        card.repCount = 0
-        card.interval = 12.0
-    }
-
-    // Update the last reviewed timestamp
-    card.lastReviewed = System.currentTimeMillis()
-
-    return card
-}
-
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AlgorithmButtonRow(
-    onVeryHardClicked: (RememberQuality) -> Unit,
-    onHardClicked: (RememberQuality) -> Unit,
-    onMediumClicked: (RememberQuality) -> Unit,
-    onEasyClicked: (RememberQuality) -> Unit,
-    onTooEasyClicked: (RememberQuality) -> Unit
+    onRememberQualityClicked: (RememberQuality) -> Unit,
 ) {
     FlowRow(
         horizontalArrangement = Arrangement.SpaceAround,
@@ -197,33 +160,33 @@ fun AlgorithmButtonRow(
             .fillMaxWidth()
     ) {
         Button(
-            onClick = { onVeryHardClicked(RememberQuality.VeryHard) }
+            onClick = { onRememberQualityClicked(RememberQuality.VeryHard) }
         ) {
-            Text(text = "Very Hard")
+            Text(text = RememberQuality.VeryHard.label)
         }
 
         Button(
-            onClick = { onHardClicked(RememberQuality.Hard) }
+            onClick = { onRememberQualityClicked(RememberQuality.Hard) }
         ) {
-            Text(text = "Hard")
+            Text(text = RememberQuality.Hard.label)
         }
 
         Button(
-            onClick = { onMediumClicked(RememberQuality.Medium) }
+            onClick = { onRememberQualityClicked(RememberQuality.Medium) }
         ) {
-            Text(text = "Medium")
+            Text(text = RememberQuality.Medium.label)
         }
 
         Button(
-            onClick = { onEasyClicked(RememberQuality.Easy) }
+            onClick = { onRememberQualityClicked(RememberQuality.Easy) }
         ) {
-            Text(text = "Easy")
+            Text(text = RememberQuality.Easy.label)
         }
 
         Button(
-            onClick = { onTooEasyClicked(RememberQuality.TooEasy) }
+            onClick = { onRememberQualityClicked(RememberQuality.TooEasy) }
         ) {
-            Text(text = "Too Easy")
+            Text(text = RememberQuality.TooEasy.label)
         }
     }
 }
@@ -244,25 +207,6 @@ private fun CardText(text: String) {
             fontStyle = MaterialTheme.typography.bodyLarge.fontStyle
         )
     }
-}
-
-enum class CardFace(val angle: Float) {
-    Front(0f) {
-        override val next: CardFace
-            get() = Back
-    },
-
-    Back(180f) {
-        override val next: CardFace
-            get() = Front
-    };
-
-    abstract val next: CardFace
-}
-
-enum class RotationAxis {
-    AxisX,
-    AxisY,
 }
 
 @Composable
@@ -297,10 +241,7 @@ fun FlipCard(
             },
     ) {
         if (rotation.value <= 90f) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
+            Box(modifier = Modifier.fillMaxSize()) {
                 front()
             }
         } else {
@@ -319,4 +260,31 @@ fun FlipCard(
             }
         }
     }
+}
+
+enum class CardFace(val angle: Float) {
+    Front(0f) {
+        override val next: CardFace
+            get() = Back
+    },
+
+    Back(180f) {
+        override val next: CardFace
+            get() = Front
+    };
+
+    abstract val next: CardFace
+}
+
+enum class RotationAxis {
+    AxisX,
+    AxisY,
+}
+
+enum class RememberQuality(val recallScore: Int, val label: String) {
+    VeryHard(1, "Very Hard"),
+    Hard(2, "Hard"),
+    Medium(3, "Medium"),
+    Easy(4, "Easy"),
+    TooEasy(5, "Too Easy")
 }
