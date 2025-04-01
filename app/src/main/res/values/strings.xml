@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FlashCardsApp</string>
+    <string name="app_name">Memora</string>
     <string name="deck_name_hint">Deck Name</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
@@ -16,4 +16,7 @@
     <string name="edit_icon">Edit Icon</string>
     <string name="card_icon">Card Icon</string>
     <string name="delete_icon">Delete Icon</string>
+    <string name="no_due_cards_for_session">You have no due cards for this session</string>
+    <string name="could_not_retrieve_card">Could not retrieve a card</string>
+    <string name="show_answer">Show Answer</string>
 </resources>

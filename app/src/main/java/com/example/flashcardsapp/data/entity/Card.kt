@@ -24,7 +24,7 @@ data class Card(
     val question: String,
     val answer: String,
     var lastReviewed: Long = 0L,
-    var interval: Int = 1,
+    var interval: Double = 1.0,
     var repCount: Int = 0,
     var easeFactor: Double = 2.5,
     val deckId: Int
