@@ -4,6 +4,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,8 +14,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,12 +42,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcardsapp.R
+import com.example.flashcardsapp.data.entity.Card
 import com.example.flashcardsapp.ui.CustomFactories
 import kotlinx.coroutines.delay
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StandardStudyScreen(
     deckId: Int,
+    onNavigateBackUp: () -> Unit,
     viewModel: StandardStudyViewModel = viewModel(
         factory = CustomFactories.standardStudyFactory(
             deckId
@@ -48,9 +58,33 @@ fun StandardStudyScreen(
     )
 ) {
     val uiState by viewModel.standardUiState
-    var card = uiState.cards.randomOrNull()
+    var card by remember { mutableStateOf<Card?>(null) }
 
-    Scaffold { padding ->
+    // Set the initial card only when the list is non-empty
+    LaunchedEffect(uiState.cards) {
+        if (card == null && uiState.cards.isNotEmpty()) {
+            card = uiState.cards.random()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(text = stringResource(R.string.app_name)) },
+                navigationIcon = {
+                    IconButton(
+                        onClick = onNavigateBackUp
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back_arrow),
+                            Modifier.clickable { onNavigateBackUp() }
+                        )
+                    }
+                }
+            )
+        }
+    ) { padding ->
         var answerShown by remember { mutableStateOf(false) }
         var state by remember { mutableStateOf(CardFace.Front) }
         var shouldChangeCard by remember { mutableStateOf(false) }
@@ -110,21 +144,15 @@ fun StandardStudyScreen(
                     .background(MaterialTheme.colorScheme.background)
             )
 
-            fun flipCard() {
-                state = state.next
-                shouldChangeCard = true
-                answerShown = false
-            }
-
-            fun nextCard(quality: RememberQuality) {
-                viewModel.updateCard(card!!, quality.recallScore)
-
-                flipCard()
-            }
-
             if (answerShown) {
                 AlgorithmButtonRow(
-                    onRememberQualityClicked = { nextCard(it) }
+                    onRememberQualityClicked = {
+                        viewModel.updateCard(card!!, it.recallScore)
+
+                        state = state.next
+                        shouldChangeCard = true
+                        answerShown = false
+                    }
                 )
 
             } else {
@@ -133,7 +161,9 @@ fun StandardStudyScreen(
                         state = state.next
                         answerShown = true
                     }
-                ) { Text(text = stringResource(R.string.show_answer)) }
+                ) {
+                    Text(text = stringResource(R.string.show_answer))
+                }
             }
 
             // delay changing the card until the it is finished flipping back,
@@ -159,34 +189,12 @@ fun AlgorithmButtonRow(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        Button(
-            onClick = { onRememberQualityClicked(RememberQuality.VeryHard) }
-        ) {
-            Text(text = RememberQuality.VeryHard.label)
-        }
-
-        Button(
-            onClick = { onRememberQualityClicked(RememberQuality.Hard) }
-        ) {
-            Text(text = RememberQuality.Hard.label)
-        }
-
-        Button(
-            onClick = { onRememberQualityClicked(RememberQuality.Medium) }
-        ) {
-            Text(text = RememberQuality.Medium.label)
-        }
-
-        Button(
-            onClick = { onRememberQualityClicked(RememberQuality.Easy) }
-        ) {
-            Text(text = RememberQuality.Easy.label)
-        }
-
-        Button(
-            onClick = { onRememberQualityClicked(RememberQuality.TooEasy) }
-        ) {
-            Text(text = RememberQuality.TooEasy.label)
+        for (quality in RememberQuality.entries) {
+            Button(
+                onClick = { onRememberQualityClicked(quality) }
+            ) {
+                Text(text = quality.label)
+            }
         }
     }
 }

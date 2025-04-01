@@ -18,8 +18,13 @@ class StandardStudyViewModel(
 
     init {
         viewModelScope.launch {
-            _standardUiState.value =
-                StandardUiState(cards = cardRepository.getDueCardsFromDeck(System.currentTimeMillis(), 4, deckId))
+            _standardUiState.value = StandardUiState(
+                cards = cardRepository.getDueCardsFromDeck(
+                    currentTime = System.currentTimeMillis(),
+                    limit = 10,
+                    deckId = deckId
+                )
+            )
         }
     }
 

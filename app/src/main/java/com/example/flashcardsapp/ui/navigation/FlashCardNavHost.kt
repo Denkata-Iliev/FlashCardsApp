@@ -68,7 +68,8 @@ fun FlashCardNavHost(
         composable<StandardStudyDestination> {
             val destination: StandardStudyDestination = it.toRoute()
             StandardStudyScreen(
-                deckId = destination.deckId
+                deckId = destination.deckId,
+                onNavigateBackUp = { navController.navigateUp() }
             )
         }
     }
