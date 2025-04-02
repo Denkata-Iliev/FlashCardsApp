@@ -11,6 +11,7 @@ import com.example.flashcardsapp.ui.card.CardListScreen
 import com.example.flashcardsapp.ui.card.EditCardScreen
 import com.example.flashcardsapp.ui.deck.DeckListScreen
 import com.example.flashcardsapp.ui.study.StandardStudyScreen
+import com.example.flashcardsapp.ui.study.TimedStudyScreen
 
 @Composable
 fun FlashCardNavHost(
@@ -41,7 +42,9 @@ fun FlashCardNavHost(
                 onNavigateToStandardStudy = {
                     navController.navigate(StandardStudyDestination(deckId = cardListDest.deckId))
                 },
-                onNavigateToTimedStudy = {},
+                onNavigateToTimedStudy = {
+                    navController.navigate(TimedStudyDestination(deckId = cardListDest.deckId))
+                },
                 onNavigateToAdvancedStudy = {},
                 onNavigateToCard = { cardId ->
                     navController.navigate(EditCardDestination(cardId = cardId))
@@ -68,6 +71,14 @@ fun FlashCardNavHost(
         composable<StandardStudyDestination> {
             val destination: StandardStudyDestination = it.toRoute()
             StandardStudyScreen(
+                deckId = destination.deckId,
+                onNavigateBackUp = { navController.navigateUp() }
+            )
+        }
+
+        composable<TimedStudyDestination> {
+            val destination: TimedStudyDestination = it.toRoute()
+            TimedStudyScreen(
                 deckId = destination.deckId,
                 onNavigateBackUp = { navController.navigateUp() }
             )

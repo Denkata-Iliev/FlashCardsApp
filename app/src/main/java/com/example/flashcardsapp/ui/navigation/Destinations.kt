@@ -16,3 +16,6 @@ data class EditCardDestination(val cardId: Int = 0)
 
 @Serializable
 data class StandardStudyDestination(val deckId: Int = 0)
+
+@Serializable
+data class TimedStudyDestination(val deckId: Int = 0)

@@ -11,6 +11,7 @@ import com.example.flashcardsapp.ui.card.CardListViewModel
 import com.example.flashcardsapp.ui.card.EditCardViewModel
 import com.example.flashcardsapp.ui.deck.DeckListViewModel
 import com.example.flashcardsapp.ui.study.StandardStudyViewModel
+import com.example.flashcardsapp.ui.study.TimedStudyViewModel
 
 class CustomFactories {
     companion object {
@@ -26,6 +27,15 @@ class CustomFactories {
         fun standardStudyFactory(deckId: Int): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 StandardStudyViewModel(
+                    deckId = deckId,
+                    cardRepository = flashCardApplication().container.cardRepository
+                )
+            }
+        }
+
+        fun timedStudyFactory(deckId: Int): ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                TimedStudyViewModel(
                     deckId = deckId,
                     cardRepository = flashCardApplication().container.cardRepository
                 )

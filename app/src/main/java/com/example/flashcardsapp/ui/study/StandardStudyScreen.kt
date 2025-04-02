@@ -81,7 +81,8 @@ fun StandardStudyScreen(
                             Modifier.clickable { onNavigateBackUp() }
                         )
                     }
-                }
+                },
+                modifier = Modifier.shadow(elevation = dimensionResource(R.dimen.top_app_bar_elevation))
             )
         }
     ) { padding ->
@@ -200,7 +201,7 @@ fun AlgorithmButtonRow(
 }
 
 @Composable
-private fun CardText(text: String) {
+fun CardText(text: String) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
