@@ -1,12 +1,12 @@
 package com.example.flashcardsapp.ui.study
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,12 +37,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcardsapp.R
+import com.example.flashcardsapp.data.entity.Card
 import com.example.flashcardsapp.ui.CustomFactories
 import kotlinx.coroutines.delay
 
@@ -55,6 +56,15 @@ fun TimedStudyScreen(
         factory = CustomFactories.timedStudyFactory(deckId)
     )
 ) {
+    val uiState by viewModel.timedUiState
+    var card by remember { mutableStateOf<Card?>(null) }
+
+    LaunchedEffect(uiState.cards) {
+        if (card == null && uiState.cards.isNotEmpty()) {
+            card = uiState.cards.random()
+        }
+    }
+
     val seconds by viewModel.seconds
     val progress by viewModel.progress
 
@@ -69,7 +79,6 @@ fun TimedStudyScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back_arrow),
-                            Modifier.clickable { onNavigateBackUp() }
                         )
                     }
                 },
@@ -83,6 +92,39 @@ fun TimedStudyScreen(
         var state by remember { mutableStateOf(CardFace.Front) }
         var shouldChangeCard by remember { mutableStateOf(false) }
 
+        if (uiState.cards.isEmpty()) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                Text(
+                    text = stringResource(R.string.finished_timed_session),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+
+            return@Scaffold
+        }
+
+        if (card == null) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                Text(
+                    text = stringResource(R.string.could_not_retrieve_card),
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+
+            return@Scaffold
+        }
+
         Crossfade(hasStarted) { currentState ->
             if (!currentState) {
                 Box(
@@ -90,7 +132,7 @@ fun TimedStudyScreen(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     Button(onClick = { hasStarted = true }) {
-                        Text(text = "Start")
+                        Text(text = stringResource(R.string.start))
                     }
                 }
 
@@ -118,32 +160,34 @@ fun TimedStudyScreen(
                 CountdownTimer(
                     remainingSeconds = seconds / 1000L,
                     progress = progress,
-                    strokeWidth = 8.dp,
-                    modifier = Modifier.size(150.dp),
+                    strokeWidth = dimensionResource(R.dimen.timer_stroke_width),
+                    modifier = Modifier
+                        .size(dimensionResource(R.dimen.timer_size)),
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.default_space_height)))
 
                 FlipCard(
                     cardFace = state,
                     axis = RotationAxis.AxisY,
                     back = {
-                        CardText(text = "answer")
+                        CardText(text = card!!.answer)
                     },
                     front = {
-                        CardText(text = "question")
+                        CardText(text = card!!.question)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(1.25f)
-                        .padding(8.dp)
+                        .fillMaxHeight(0.5f)
+                        .align(Alignment.CenterHorizontally)
+                        .background(MaterialTheme.colorScheme.background)
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.default_space_height)))
 
                 if (answerShown) {
                     TimedStudyButton(
-                        text = "Next",
+                        text = stringResource(R.string.next),
                         onClick = {
                             viewModel.stopTimer()
 
@@ -164,11 +208,19 @@ fun TimedStudyScreen(
                     )
                 }
 
+                LaunchedEffect(progress) {
+                    if (progress == 0f) {
+                        answerShown = true
+                        state = state.next
+                        viewModel.stopTimer()
+                    }
+                }
+
                 LaunchedEffect(state) {
                     if (state == CardFace.Front && shouldChangeCard) {
                         delay(100)
-//                    viewModel.removeCardFromSession(card!!)
-//                    card = uiState.cards.randomOrNull()
+                        viewModel.removeCardFromSession(card!!)
+                        card = uiState.cards.randomOrNull()
                     }
                 }
             }

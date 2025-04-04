@@ -4,7 +4,6 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,9 +51,7 @@ fun StandardStudyScreen(
     deckId: Int,
     onNavigateBackUp: () -> Unit,
     viewModel: StandardStudyViewModel = viewModel(
-        factory = CustomFactories.standardStudyFactory(
-            deckId
-        )
+        factory = CustomFactories.standardStudyFactory(deckId)
     )
 ) {
     val uiState by viewModel.standardUiState
@@ -78,7 +75,6 @@ fun StandardStudyScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back_arrow),
-                            Modifier.clickable { onNavigateBackUp() }
                         )
                     }
                 },
@@ -99,6 +95,7 @@ fun StandardStudyScreen(
             ) {
                 Text(
                     text = stringResource(R.string.no_due_cards_for_session),
+                    textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleLarge
                 )
             }
