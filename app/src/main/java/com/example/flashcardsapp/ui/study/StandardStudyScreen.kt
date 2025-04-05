@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -189,7 +190,16 @@ fun AlgorithmButtonRow(
     ) {
         for (quality in RememberQuality.entries) {
             Button(
-                onClick = { onRememberQualityClicked(quality) }
+                onClick = { onRememberQualityClicked(quality) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = when (quality) {
+                        RememberQuality.VeryHard -> Color(0xFFD50000)
+                        RememberQuality.Hard -> Color(0xFFDA5B00)
+                        RememberQuality.Medium -> Color(0xFFB09400)
+                        RememberQuality.Easy -> Color(0xFF2E7D32)
+                        RememberQuality.TooEasy -> Color(0xDC279300)
+                    }
+                )
             ) {
                 Text(text = quality.label)
             }
