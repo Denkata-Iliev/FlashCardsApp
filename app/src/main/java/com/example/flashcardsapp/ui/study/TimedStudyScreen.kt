@@ -151,6 +151,9 @@ fun TimedStudyScreen(
                         end = padding.calculateLeftPadding(LayoutDirection.Ltr),
                     ),
             ) {
+                // when answer isn't shown,
+                // meaning we're definitely on the question side of the card,
+                // start the timer
                 LaunchedEffect(answerShown) {
                     if (!answerShown) {
                         viewModel.startTimer()
@@ -189,7 +192,7 @@ fun TimedStudyScreen(
                     TimedStudyButton(
                         text = stringResource(R.string.next),
                         onClick = {
-                            viewModel.stopTimer()
+                            viewModel.resetTimer()
 
                             state = state.next
                             shouldChangeCard = true
@@ -200,7 +203,7 @@ fun TimedStudyScreen(
                     TimedStudyButton(
                         text = stringResource(R.string.show_answer),
                         onClick = {
-                            viewModel.stopTimer()
+                            viewModel.resetTimer()
 
                             state = state.next
                             answerShown = true
@@ -208,11 +211,14 @@ fun TimedStudyScreen(
                     )
                 }
 
+                // when progress goes to 0,
+                // meaning that the timer has run out (and has finished)
+                // flip the card and reset the timer
                 LaunchedEffect(progress) {
                     if (progress == 0f) {
                         answerShown = true
                         state = state.next
-                        viewModel.stopTimer()
+                        viewModel.resetTimer()
                     }
                 }
 
@@ -260,6 +266,7 @@ fun CountdownTimer(
             progress = { 1f },
             modifier = Modifier.fillMaxSize(),
             color = backgroundColor,
+            trackColor = Color.Unspecified,
             strokeWidth = strokeWidth
         )
 
@@ -268,6 +275,7 @@ fun CountdownTimer(
             progress = { progress },
             modifier = Modifier.fillMaxSize(),
             color = foregroundColor,
+            trackColor = Color.Unspecified,
             strokeWidth = strokeWidth
         )
 

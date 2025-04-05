@@ -48,7 +48,7 @@ class TimedStudyViewModel(
         countDownTimer.start()
     }
 
-    fun stopTimer() {
+    fun resetTimer() {
         progress.floatValue = 1f
         countDownTimer.cancel()
         seconds.longValue = TimeUnit.SECONDS.toMillis(10)
