@@ -238,10 +238,12 @@ fun TimedStudyScreen(
 fun StudyButton(
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     Button(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier.fillMaxWidth(0.6f)
     ) {
         Text(text = text)

@@ -147,7 +147,8 @@ fun AdvancedStudyScreen(
                         onClick = {
                             state = state.next
                             answerShown = true
-                        }
+                        },
+                        enabled = userAnswer.trim().isNotEmpty()
                     )
                 } else {
                     StudyButton(
