@@ -27,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,7 +43,7 @@ fun FabMenu(
     items: List<@Composable () -> Unit>,
     modifier: Modifier = Modifier
 ) {
-    var fabMenuState by rememberSaveable { mutableStateOf(FabMenuState.Collapsed) }
+    var fabMenuState by remember { mutableStateOf(FabMenuState.Collapsed) }
 
     Column(
         horizontalAlignment = Alignment.End,

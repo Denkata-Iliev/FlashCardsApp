@@ -19,4 +19,7 @@
     <string name="no_due_cards_for_session">You have no due cards for this session</string>
     <string name="could_not_retrieve_card">Could not retrieve a card</string>
     <string name="show_answer">Show Answer</string>
+    <string name="start">Start</string>
+    <string name="finished_timed_session">Congratulations! You finished this timed session!</string>
+    <string name="next">Next</string>
 </resources>

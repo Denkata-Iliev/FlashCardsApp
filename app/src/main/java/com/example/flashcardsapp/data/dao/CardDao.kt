@@ -35,4 +35,12 @@ interface CardDao {
         LIMIT :limit
         """)
     suspend fun getDueCards(currentTime: Long, limit: Int, deckId: Int): List<Card>
+
+    @Query("""
+        SELECT * FROM cards
+        WHERE deckId = :deckId
+        ORDER BY RANDOM()
+        LIMIT :limit
+        """)
+    suspend fun getRandomCards(limit: Int, deckId: Int): List<Card>
 }
