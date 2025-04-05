@@ -157,6 +157,7 @@ fun AdvancedStudyScreen(
                             state = state.next
                             shouldChangeCard = true
                             answerShown = false
+                            userAnswer = ""
                         }
                     )
                 }
