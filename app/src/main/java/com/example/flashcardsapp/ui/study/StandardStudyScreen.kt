@@ -208,7 +208,7 @@ fun CardText(text: String) {
         Text(
             text = text,
             modifier = Modifier
-                .padding(16.dp),
+                .padding(dimensionResource(R.dimen.default_padding)),
             textAlign = TextAlign.Center,
             fontStyle = MaterialTheme.typography.bodyLarge.fontStyle
         )

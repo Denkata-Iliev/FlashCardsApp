@@ -168,7 +168,7 @@ fun TimedStudyScreen(
                         .size(dimensionResource(R.dimen.timer_size)),
                 )
 
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.default_space_height)))
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.default_spacer_height)))
 
                 FlipCard(
                     cardFace = state,
@@ -186,10 +186,10 @@ fun TimedStudyScreen(
                         .background(MaterialTheme.colorScheme.background)
                 )
 
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.default_space_height)))
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.default_spacer_height)))
 
                 if (answerShown) {
-                    TimedStudyButton(
+                    StudyButton(
                         text = stringResource(R.string.next),
                         onClick = {
                             viewModel.resetTimer()
@@ -200,7 +200,7 @@ fun TimedStudyScreen(
                         },
                     )
                 } else {
-                    TimedStudyButton(
+                    StudyButton(
                         text = stringResource(R.string.show_answer),
                         onClick = {
                             viewModel.resetTimer()
@@ -235,7 +235,7 @@ fun TimedStudyScreen(
 }
 
 @Composable
-fun TimedStudyButton(
+fun StudyButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
