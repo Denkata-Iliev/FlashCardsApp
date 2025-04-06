@@ -1,5 +1,6 @@
 package com.example.flashcardsapp.ui.card
 
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -66,7 +67,9 @@ fun EditCardScreen(
                 }
             },
             focusRequester = focusRequester,
-            modifier = Modifier.padding(padding)
+            modifier = Modifier
+                .padding(padding)
+                .imePadding()
         )
     }
 }

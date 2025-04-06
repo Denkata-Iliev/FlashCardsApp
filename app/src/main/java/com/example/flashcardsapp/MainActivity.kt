@@ -9,7 +9,7 @@ import com.example.flashcardsapp.ui.theme.FlashCardsAppTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
+        enableEdgeToEdge()
         setContent {
             FlashCardsAppTheme {
                 FlashCardApp()
