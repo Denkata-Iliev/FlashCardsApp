@@ -8,5 +8,5 @@
     <dimen name="deck_icon_size">64dp</dimen>
     <dimen name="top_app_bar_elevation">5dp</dimen>
     <dimen name="rounded_corners_small">5dp</dimen>
-    <dimen name="default_space_height">24dp</dimen>
+    <dimen name="default_spacer_height">24dp</dimen>
 </resources>

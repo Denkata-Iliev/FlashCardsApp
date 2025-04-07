@@ -515,6 +515,7 @@ private fun CreateDeckDialog(
                 value = uiState.deckName,
                 onValueChange = onTextValueChange,
                 label = { Text(stringResource(R.string.deck_name_hint)) },
+                maxLines = 1,
                 modifier = modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester)
@@ -529,7 +530,9 @@ private fun CreateDeckDialog(
                     text = uiState.errorMessage,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensionResource(R.dimen.default_padding))
                 )
             }
 

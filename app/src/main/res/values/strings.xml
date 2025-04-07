@@ -22,4 +22,6 @@
     <string name="start">Start</string>
     <string name="finished_timed_session">Congratulations! You finished this timed session!</string>
     <string name="next">Next</string>
+    <string name="finished_advanced_session">Congratulations! You finished this advanced session!</string>
+    <string name="type_your_answer">Type your answer</string>
 </resources>

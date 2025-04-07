@@ -10,6 +10,7 @@ import com.example.flashcardsapp.ui.card.AddCardsViewModel
 import com.example.flashcardsapp.ui.card.CardListViewModel
 import com.example.flashcardsapp.ui.card.EditCardViewModel
 import com.example.flashcardsapp.ui.deck.DeckListViewModel
+import com.example.flashcardsapp.ui.study.AdvancedStudyViewModel
 import com.example.flashcardsapp.ui.study.StandardStudyViewModel
 import com.example.flashcardsapp.ui.study.TimedStudyViewModel
 
@@ -36,6 +37,15 @@ class CustomFactories {
         fun timedStudyFactory(deckId: Int): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 TimedStudyViewModel(
+                    deckId = deckId,
+                    cardRepository = flashCardApplication().container.cardRepository
+                )
+            }
+        }
+
+        fun advancedStudyFactory(deckId: Int): ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                AdvancedStudyViewModel(
                     deckId = deckId,
                     cardRepository = flashCardApplication().container.cardRepository
                 )
