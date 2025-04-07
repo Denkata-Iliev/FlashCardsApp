@@ -42,6 +42,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcardsapp.R
@@ -109,7 +110,13 @@ fun CardListScreen(
         },
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = cardListUiState.deckWithCards.deck.name) },
+                title = {
+                    Text(
+                        text = cardListUiState.deckWithCards.deck.name,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -199,6 +206,7 @@ fun CardListScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CardList(
     cards: List<Card>,
@@ -231,7 +239,11 @@ fun CardList(
                     )
                 },
                 headlineContent = {
-                    Text(text = card.question)
+                    Text(
+                        text = card.question,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 },
                 trailingContent = {
                     AnimatedContent(

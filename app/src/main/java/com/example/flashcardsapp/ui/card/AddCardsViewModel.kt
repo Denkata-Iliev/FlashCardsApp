@@ -19,13 +19,13 @@ class AddCardsViewModel(private val cardRepository: CardRepository) : ViewModel(
 
     private fun validateInput(uiState: CardUiState = cardUiState): Boolean {
         return with(uiState) {
-            if (question.trim().isBlank()) {
-                cardUiState = copy(questionErrorMessage = QUESTION_NOT_BLANK)
+            if (question.trim().isBlank() || question.trim().length > QA_LENGTH_LIMIT) {
+                cardUiState = copy(questionErrorMessage = QUESTION_ERROR_MESSAGE)
                 return false
             }
 
-            if (answer.trim().isBlank()) {
-                cardUiState = copy(answerErrorMessage = ANSWER_NOT_BLANK)
+            if (answer.trim().isBlank() || answer.trim().length > QA_LENGTH_LIMIT) {
+                cardUiState = copy(answerErrorMessage = ANSWER_ERROR_MESSAGE)
                 return false
             }
 
@@ -64,8 +64,9 @@ class AddCardsViewModel(private val cardRepository: CardRepository) : ViewModel(
     }
 
     companion object {
-        const val QUESTION_NOT_BLANK = "Question cannot be blank!"
-        const val ANSWER_NOT_BLANK = "Answer cannot be blank!"
+        const val QA_LENGTH_LIMIT = 200
+        const val QUESTION_ERROR_MESSAGE = "Question cannot be blank and must be less than $QA_LENGTH_LIMIT characters long!"
+        const val ANSWER_ERROR_MESSAGE = "Answer cannot be blank and must be less than $QA_LENGTH_LIMIT characters long!"
     }
 }
 

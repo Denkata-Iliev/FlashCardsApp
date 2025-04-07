@@ -182,6 +182,11 @@ class DeckListViewModel(private val deckRepository: DeckRepository) : ViewModel(
                 return false
             }
 
+            if (deckName.trim().length > 15) {
+                createDeckUiState = createUiState.copy(errorMessage = "Deck name cannot be more than 15 characters long!")
+                return false
+            }
+
             true
         }
     }

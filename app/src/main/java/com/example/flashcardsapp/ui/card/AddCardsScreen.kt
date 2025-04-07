@@ -51,7 +51,7 @@ fun AddCardsScreen(
 
     Scaffold(
         snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
+            SnackbarHost(hostState = snackbarHostState, modifier = Modifier.imePadding())
         },
         topBar = {
             CenterAlignedTopAppBar(
@@ -85,6 +85,7 @@ fun AddCardsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .padding(dimensionResource(R.dimen.default_padding))
                 .imePadding()
         )
     }
@@ -150,6 +151,7 @@ fun AddCardInputForm(
                     answerFocusRequester.requestFocus()
                 }
             ),
+            maxLines = 5,
             modifier = modifier
                 .focusRequester(focusRequester)
         )
@@ -168,6 +170,7 @@ fun AddCardInputForm(
                 onDone = { onDone() }
             ),
             label = { Text(text = stringResource(R.string.answer)) },
+            maxLines = 5,
             modifier = modifier
                 .focusRequester(answerFocusRequester)
         )

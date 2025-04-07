@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -31,6 +35,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -121,7 +126,6 @@ fun AdvancedStudyScreen(
                 .imePadding()
         ) {
             var userAnswer by remember { mutableStateOf("") }
-
             FlipCard(
                 cardFace = state,
                 axis = RotationAxis.AxisY,
@@ -140,6 +144,7 @@ fun AdvancedStudyScreen(
             )
 
             Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .weight(0.3f)
             ) {
@@ -190,13 +195,20 @@ private fun CardFrontInput(
             .background(Color.White)
             .padding(8.dp)
     ) {
-        Text(
-            text = text,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyLarge,
+        Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
-                .padding(dimensionResource(R.dimen.default_padding))
-        )
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text(
+                text = text,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .padding(dimensionResource(R.dimen.default_padding))
+            )
+        }
 
         OutlinedTextField(
             value = userAnswer,
@@ -206,6 +218,11 @@ private fun CardFrontInput(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White
             ),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(
+                onDone = { this.defaultKeyboardAction(ImeAction.Done) }
+            ),
+            maxLines = 2,
             modifier = Modifier.fillMaxWidth(0.7f)
         )
     }

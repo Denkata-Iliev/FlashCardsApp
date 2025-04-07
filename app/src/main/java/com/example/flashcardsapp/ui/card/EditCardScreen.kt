@@ -1,5 +1,6 @@
 package com.example.flashcardsapp.ui.card
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -68,7 +69,9 @@ fun EditCardScreen(
             },
             focusRequester = focusRequester,
             modifier = Modifier
+                .fillMaxSize()
                 .padding(padding)
+                .padding(dimensionResource(R.dimen.default_padding))
                 .imePadding()
         )
     }
