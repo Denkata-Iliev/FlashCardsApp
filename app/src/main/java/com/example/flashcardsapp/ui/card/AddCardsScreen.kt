@@ -8,13 +8,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -27,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.dimensionResource
@@ -35,10 +28,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcardsapp.R
+import com.example.flashcardsapp.ui.DefaultTopBar
 import com.example.flashcardsapp.ui.FlashCardAppViewModelProvider
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddCardsScreen(
     deckId: Int,
@@ -54,17 +47,9 @@ fun AddCardsScreen(
             SnackbarHost(hostState = snackbarHostState, modifier = Modifier.imePadding())
         },
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = stringResource(R.string.add_cards_to_deck)) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBackUp) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back_arrow)
-                        )
-                    }
-                },
-                modifier = Modifier.shadow(elevation = dimensionResource(R.dimen.top_app_bar_elevation))
+            DefaultTopBar(
+                text = stringResource(R.string.add_cards_to_deck),
+                onNavigateBackUp = onNavigateBackUp
             )
         },
     ) { padding ->

@@ -6,7 +6,10 @@ import com.example.flashcardsapp.data.repository.DeckRepository
 
 class FlashCardAppContainer(private val context: Context) {
     val deckRepository: DeckRepository by lazy {
-        DeckRepository(FlashCardDatabase.getDatabase(context).deckDao())
+        DeckRepository(
+            deckDao = FlashCardDatabase.getDatabase(context).deckDao(),
+            cardDao = FlashCardDatabase.getDatabase(context).cardDao()
+        )
     }
 
     val cardRepository: CardRepository by lazy {

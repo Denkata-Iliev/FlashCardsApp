@@ -27,7 +27,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,12 +40,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcardsapp.R
 import com.example.flashcardsapp.data.entity.Card
+import com.example.flashcardsapp.ui.CenteredText
 import com.example.flashcardsapp.ui.CustomFactories
 import com.example.flashcardsapp.ui.deck.DeleteConfirmDialog
 import kotlinx.coroutines.launch
@@ -166,13 +165,9 @@ fun CardListScreen(
         }
     ) { padding ->
         if (cardListUiState.deckWithCards.cards.isEmpty()) {
-            Text(
+            CenteredText(
                 text = stringResource(R.string.no_cards_in_deck),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(padding)
+                padding = padding
             )
             return@Scaffold
         }

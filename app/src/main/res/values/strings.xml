@@ -24,4 +24,13 @@
     <string name="next">Next</string>
     <string name="finished_advanced_session">Congratulations! You finished this advanced session!</string>
     <string name="type_your_answer">Type your answer</string>
+    <string name="export_icon">Export Icon</string>
+    <string name="import_icon">Import Icon</string>
+    <string name="exit_selection_mode_icon">Exit selection mode icon</string>
+    <string name="rename_icon">Rename Icon</string>
+    <string name="select_all_icon">Select All Icon</string>
+    <string name="deselect_all_icon">Deselect All Icon</string>
+    <string name="delete_warning_icon">Delete Warning Icon</string>
+    <string name="not_selected_deck_icon">Not Selected Deck Icon</string>
+    <string name="selected_deck_icon">Selected Deck Icon</string>
 </resources>

@@ -12,14 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
@@ -32,22 +26,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcardsapp.R
 import com.example.flashcardsapp.data.entity.Card
+import com.example.flashcardsapp.ui.CenteredText
 import com.example.flashcardsapp.ui.CustomFactories
+import com.example.flashcardsapp.ui.DefaultTopBar
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimedStudyScreen(
     deckId: Int,
@@ -70,20 +63,7 @@ fun TimedStudyScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = stringResource(R.string.app_name)) },
-                navigationIcon = {
-                    IconButton(
-                        onClick = onNavigateBackUp
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back_arrow),
-                        )
-                    }
-                },
-                modifier = Modifier.shadow(elevation = dimensionResource(R.dimen.top_app_bar_elevation))
-            )
+            DefaultTopBar(onNavigateBackUp = onNavigateBackUp)
         }
     ) { padding ->
         var hasStarted by remember { mutableStateOf(false) }
@@ -93,34 +73,19 @@ fun TimedStudyScreen(
         var shouldChangeCard by remember { mutableStateOf(false) }
 
         if (uiState.cards.isEmpty()) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
-                Text(
-                    text = stringResource(R.string.finished_timed_session),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
+            CenteredText(
+                text = stringResource(R.string.finished_timed_session),
+                padding = padding
+            )
 
             return@Scaffold
         }
 
         if (card == null) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
-                Text(
-                    text = stringResource(R.string.could_not_retrieve_card),
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
+            CenteredText(
+                text = stringResource(R.string.could_not_retrieve_card),
+                padding = padding
+            )
 
             return@Scaffold
         }

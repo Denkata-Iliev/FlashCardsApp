@@ -1,11 +1,15 @@
 package com.example.flashcardsapp.ui.deck
 
+import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.flashcardsapp.data.entity.Card
 import com.example.flashcardsapp.data.entity.Deck
+import com.example.flashcardsapp.data.entity.DeckCards
 import com.example.flashcardsapp.data.repository.DeckRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,6 +18,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class DeckListViewModel(private val deckRepository: DeckRepository) : ViewModel() {
     val deckListUiState: StateFlow<DeckListUiState> =
@@ -183,7 +190,8 @@ class DeckListViewModel(private val deckRepository: DeckRepository) : ViewModel(
             }
 
             if (deckName.trim().length > 15) {
-                createDeckUiState = createUiState.copy(errorMessage = "Deck name cannot be more than 15 characters long!")
+                createDeckUiState =
+                    createUiState.copy(errorMessage = "Deck name cannot be more than 15 characters long!")
                 return false
             }
 
@@ -204,6 +212,41 @@ class DeckListViewModel(private val deckRepository: DeckRepository) : ViewModel(
 
     private suspend fun getById(id: Int) = deckRepository.getById(id)
 
+    private val jsonFormatter = Json {
+        prettyPrint = true
+        encodeDefaults = true
+        ignoreUnknownKeys = true
+    }
+
+    fun exportSelectedDecks(context: Context, uri: Uri) {
+        viewModelScope.launch {
+            val selectedDecksIds = _selectedIds.value.map {
+                deckListUiState.value.decks[it].id
+            }
+
+            val selectedDecks = deckRepository.getDecksWithCardsById(selectedDecksIds)
+
+            val exportable = selectedDecks.map { it.toExportableDeck() }
+
+            val json = jsonFormatter.encodeToString(exportable)
+
+            context.contentResolver.openOutputStream(uri)?.use {
+                it.write(json.toByteArray())
+            }
+        }
+    }
+
+    fun importFromJson(context: Context, uri: Uri) {
+        viewModelScope.launch {
+            val input = context.contentResolver.openInputStream(uri) ?: return@launch
+            val json = input.bufferedReader().use { it.readText() }
+
+            val decks: List<ExportableDeck> = jsonFormatter.decodeFromString(json)
+
+            deckRepository.insertDecksWithCards(decks)
+        }
+    }
+
     companion object {
         private const val TIMEOUT = 5000L
     }
@@ -215,4 +258,20 @@ data class CreateDeckUiState(
     val id: Int = 0,
     val deckName: String = "",
     val errorMessage: String? = null
+)
+
+@Serializable
+data class ExportableDeck(val name: String, val cards: List<ExportableCard>)
+
+@Serializable
+data class ExportableCard(val question: String, val answer: String)
+
+fun DeckCards.toExportableDeck(): ExportableDeck = ExportableDeck(
+    name = this.deck.name,
+    cards = this.cards.map { it.toExportableCard() }
+)
+
+fun Card.toExportableCard(): ExportableCard = ExportableCard(
+    question = this.question,
+    answer = this.answer
 )
