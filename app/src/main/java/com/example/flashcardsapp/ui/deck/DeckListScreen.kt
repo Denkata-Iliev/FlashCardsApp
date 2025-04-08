@@ -85,6 +85,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcardsapp.R
 import com.example.flashcardsapp.data.entity.Deck
+import com.example.flashcardsapp.ui.CenteredText
 import com.example.flashcardsapp.ui.FlashCardAppViewModelProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -411,13 +412,9 @@ private fun DeckList(
     }
 
     if (decks.isEmpty()) {
-        Text(
+        CenteredText(
             text = stringResource(R.string.no_decks_available),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(contentPadding)
+            padding = contentPadding
         )
         return
     }

@@ -13,15 +13,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -43,10 +37,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcardsapp.R
 import com.example.flashcardsapp.data.entity.Card
+import com.example.flashcardsapp.ui.CenteredText
 import com.example.flashcardsapp.ui.CustomFactories
+import com.example.flashcardsapp.ui.DefaultTopBar
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StandardStudyScreen(
     deckId: Int,
@@ -67,20 +62,7 @@ fun StandardStudyScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = stringResource(R.string.app_name)) },
-                navigationIcon = {
-                    IconButton(
-                        onClick = onNavigateBackUp
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back_arrow),
-                        )
-                    }
-                },
-                modifier = Modifier.shadow(elevation = dimensionResource(R.dimen.top_app_bar_elevation))
-            )
+            DefaultTopBar(onNavigateBackUp = onNavigateBackUp)
         }
     ) { padding ->
         var answerShown by remember { mutableStateOf(false) }
@@ -88,34 +70,19 @@ fun StandardStudyScreen(
         var shouldChangeCard by remember { mutableStateOf(false) }
 
         if (uiState.cards.isEmpty()) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
-                Text(
-                    text = stringResource(R.string.no_due_cards_for_session),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
+            CenteredText(
+                text = stringResource(R.string.no_due_cards_for_session),
+                padding = padding
+            )
 
             return@Scaffold
         }
 
         if (card == null) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
-                Text(
-                    text = stringResource(R.string.could_not_retrieve_card),
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
+            CenteredText(
+                text = stringResource(R.string.could_not_retrieve_card),
+                padding = padding
+            )
 
             return@Scaffold
         }
