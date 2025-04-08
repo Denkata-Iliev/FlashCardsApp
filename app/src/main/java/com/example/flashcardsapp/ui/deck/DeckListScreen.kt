@@ -1,5 +1,7 @@
 package com.example.flashcardsapp.ui.deck
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.animateColor
@@ -68,6 +70,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.dimensionResource
@@ -86,6 +89,10 @@ import com.example.flashcardsapp.ui.FlashCardAppViewModelProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 
+private const val APPLICATION_JSON = "application/json"
+
+private const val DEFAULT_FILE_NAME = "exported_decks.json"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeckListScreen(
@@ -100,6 +107,22 @@ fun DeckListScreen(
     val showUpdateDialog = viewModel.showUpdateDialog
     val showDeleteConfirm = viewModel.showDeleteConfirm
     val deckToUpdate = viewModel.deckToUpdate
+
+    val context = LocalContext.current
+    val launcherExport = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument(APPLICATION_JSON)
+    ) { uri ->
+        uri?.let {
+            viewModel.exportSelectedDecks(context, it)
+            viewModel.exitSelectionMode()
+        }
+    }
+
+    val launcherImport = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { viewModel.importFromJson(context, it) }
+    }
 
     Scaffold(
         floatingActionButton = {
@@ -130,7 +153,7 @@ fun DeckListScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Exit selection mode icon",
+                                    contentDescription = stringResource(R.string.exit_selection_mode_icon),
                                 )
                             }
                         }
@@ -145,7 +168,7 @@ fun DeckListScreen(
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.rename),
-                                contentDescription = "Rename Icon",
+                                contentDescription = stringResource(R.string.rename_icon),
                                 modifier = Modifier.size(dimensionResource(R.dimen.icon_top_bar_size))
                             )
                         }
@@ -160,6 +183,34 @@ fun DeckListScreen(
                             Icon(
                                 imageVector = Icons.Filled.Delete,
                                 contentDescription = stringResource(R.string.delete_icon),
+                                modifier = Modifier.size(dimensionResource(R.dimen.icon_top_bar_size))
+                            )
+                        }
+                    }
+
+                    AnimatedVisibility(
+                        visible = selectedIds.isNotEmpty()
+                    ) {
+                        IconButton(
+                            onClick = { launcherExport.launch(DEFAULT_FILE_NAME) }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.export_icon),
+                                contentDescription = stringResource(R.string.export_icon),
+                                modifier = Modifier.size(dimensionResource(R.dimen.icon_top_bar_size))
+                            )
+                        }
+                    }
+
+                    AnimatedVisibility(
+                        visible = !inSelectionMode
+                    ) {
+                        IconButton(
+                            onClick = { launcherImport.launch(arrayOf(APPLICATION_JSON)) }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.import_icon),
+                                contentDescription = stringResource(R.string.import_icon),
                                 modifier = Modifier.size(dimensionResource(R.dimen.icon_top_bar_size))
                             )
                         }
@@ -182,7 +233,7 @@ fun DeckListScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.radio_btn_unchecked),
-                                    contentDescription = "Select All",
+                                    contentDescription = stringResource(R.string.select_all_icon),
                                     tint = MaterialTheme.colorScheme.tertiary,
                                 )
                             }
@@ -194,7 +245,7 @@ fun DeckListScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.CheckCircle,
-                                    contentDescription = "Deselect All",
+                                    contentDescription = stringResource(R.string.deselect_all_icon),
                                     tint = MaterialTheme.colorScheme.primary,
                                 )
                             }
@@ -295,7 +346,7 @@ fun DeleteConfirmDialog(
             ) {
                 Icon(
                     imageVector = Icons.Filled.Warning,
-                    contentDescription = "Delete warning",
+                    contentDescription = stringResource(R.string.delete_warning_icon),
                     modifier = Modifier.size(48.dp)
                 )
 
@@ -358,7 +409,6 @@ private fun DeckList(
             }
         }
     }
-//    val state = rememberLazyGridState()
 
     if (decks.isEmpty()) {
         Text(
@@ -474,7 +524,7 @@ private fun DeckItem(
             val selectedBgColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
             Icon(
                 imageVector = Icons.Filled.CheckCircle,
-                contentDescription = "Selected deck",
+                contentDescription = stringResource(R.string.selected_deck_icon),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .padding(dimensionResource(R.dimen.deck_item_padding))
@@ -485,7 +535,7 @@ private fun DeckItem(
         } else {
             Icon(
                 painter = painterResource(R.drawable.radio_btn_unchecked),
-                contentDescription = "Not Selected Deck",
+                contentDescription = stringResource(R.string.not_selected_deck_icon),
                 tint = MaterialTheme.colorScheme.tertiary,
                 modifier = Modifier
                     .padding(dimensionResource(R.dimen.deck_item_padding))
