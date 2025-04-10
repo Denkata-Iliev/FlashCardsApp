@@ -38,6 +38,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Card
@@ -98,6 +99,7 @@ private const val DEFAULT_FILE_NAME = "exported_decks.json"
 @Composable
 fun DeckListScreen(
     navigateToDeck: (Int) -> Unit,
+    onNavigateToSettings: () -> Unit,
     viewModel: DeckListViewModel = viewModel(factory = FlashCardAppViewModelProvider.Factory)
 ) {
     val deckListUiState by viewModel.deckListUiState.collectAsState()
@@ -206,14 +208,26 @@ fun DeckListScreen(
                     AnimatedVisibility(
                         visible = !inSelectionMode
                     ) {
-                        IconButton(
-                            onClick = { launcherImport.launch(arrayOf(APPLICATION_JSON)) }
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.import_icon),
-                                contentDescription = stringResource(R.string.import_icon),
-                                modifier = Modifier.size(dimensionResource(R.dimen.icon_top_bar_size))
-                            )
+                        Row {
+                            IconButton(
+                                onClick = { launcherImport.launch(arrayOf(APPLICATION_JSON)) }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.import_icon),
+                                    contentDescription = stringResource(R.string.import_icon),
+                                    modifier = Modifier.size(dimensionResource(R.dimen.icon_top_bar_size))
+                                )
+                            }
+
+                            IconButton(
+                                onClick = onNavigateToSettings
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Settings,
+                                    contentDescription = stringResource(R.string.settings_icon),
+                                    modifier = Modifier.size(dimensionResource(R.dimen.icon_top_bar_size))
+                                )
+                            }
                         }
                     }
                 },

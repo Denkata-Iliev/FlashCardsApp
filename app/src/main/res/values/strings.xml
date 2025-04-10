@@ -33,4 +33,5 @@
     <string name="delete_warning_icon">Delete Warning Icon</string>
     <string name="not_selected_deck_icon">Not Selected Deck Icon</string>
     <string name="selected_deck_icon">Selected Deck Icon</string>
+    <string name="settings_icon">Settings Icon</string>
 </resources>
