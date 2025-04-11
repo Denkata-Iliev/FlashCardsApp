@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.time.LocalTime
 
 private val Context.dataStore by preferencesDataStore(name = "settings")
 
@@ -24,16 +25,25 @@ class SettingsViewModel(private val applicationContext: Context) : ViewModel() {
             val prefs = applicationContext.dataStore.data.first()
 
             if (prefs[SettingsKeys.isInitializedKey] == true) {
+                settingsUiState.value = SettingsUiState(
+                    standardLimit = prefs[SettingsKeys.standardLimitKey] ?: DEFAULT_STUDY_CARD_LIMIT,
+                    timedLimit = prefs[SettingsKeys.timedLimitKey] ?: DEFAULT_STUDY_CARD_LIMIT,
+                    advancedLimit = prefs[SettingsKeys.advancedLimitKey] ?: DEFAULT_STUDY_CARD_LIMIT,
+                    timerSeconds = prefs[SettingsKeys.timerSecondsKey] ?: DEFAULT_TIMER_SECONDS,
+                    notificationsEnabled = prefs[SettingsKeys.notificationsEnabledKey] ?: false,
+                    notificationsTime = prefs[SettingsKeys.notificationsTimeKey] ?: DEFAULT_NOTIFICATIONS_TIME
+                )
+
                 return@launch
             }
 
             applicationContext.dataStore.edit {
-                it[SettingsKeys.standardLimitKey] = 10
-                it[SettingsKeys.timedLimitKey] = 10
-                it[SettingsKeys.advancedLimitKey] = 10
-                it[SettingsKeys.timerSecondsKey] = 10
+                it[SettingsKeys.standardLimitKey] = DEFAULT_STUDY_CARD_LIMIT
+                it[SettingsKeys.timedLimitKey] = DEFAULT_STUDY_CARD_LIMIT
+                it[SettingsKeys.advancedLimitKey] = DEFAULT_STUDY_CARD_LIMIT
+                it[SettingsKeys.timerSecondsKey] = DEFAULT_TIMER_SECONDS
                 it[SettingsKeys.notificationsEnabledKey] = false
-                it[SettingsKeys.notificationsTimeKey] = "00:00"
+                it[SettingsKeys.notificationsTimeKey] = DEFAULT_NOTIFICATIONS_TIME
                 it[SettingsKeys.isInitializedKey] = true
             }
         }
@@ -56,6 +66,12 @@ class SettingsViewModel(private val applicationContext: Context) : ViewModel() {
         settingsUiState.value = uiState
     }
 
+    companion object {
+        val DEFAULT_RANGE = 5..20
+        private const val DEFAULT_STUDY_CARD_LIMIT = 10
+        private const val DEFAULT_TIMER_SECONDS = 10
+        private const val DEFAULT_NOTIFICATIONS_TIME = "09:00"
+    }
 }
 
 data class SettingsUiState(
@@ -64,8 +80,15 @@ data class SettingsUiState(
     val advancedLimit: Int = 10,
     val timerSeconds: Int = 10,
     val notificationsEnabled: Boolean = false,
-    val notificationsTime: String = "00:00",
-)
+    val notificationsTime: String = "09:00",
+) {
+    val notificationsLocalTime: LocalTime?
+        get() {
+            if (notificationsTime == "09:00") return null
+            val notificationTimeSplit = notificationsTime.split(':')
+            return LocalTime.of(notificationTimeSplit[0].toInt(), notificationTimeSplit[1].toInt())
+        }
+}
 
 object SettingsKeys {
     val standardLimitKey = intPreferencesKey("standard_limit")
