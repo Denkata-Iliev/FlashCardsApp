@@ -10,6 +10,7 @@ import com.example.flashcardsapp.ui.card.AddCardsViewModel
 import com.example.flashcardsapp.ui.card.CardListViewModel
 import com.example.flashcardsapp.ui.card.EditCardViewModel
 import com.example.flashcardsapp.ui.deck.DeckListViewModel
+import com.example.flashcardsapp.ui.settings.SettingsViewModel
 import com.example.flashcardsapp.ui.study.AdvancedStudyViewModel
 import com.example.flashcardsapp.ui.study.StandardStudyViewModel
 import com.example.flashcardsapp.ui.study.TimedStudyViewModel
@@ -72,6 +73,10 @@ object FlashCardAppViewModelProvider {
             EditCardViewModel(
                 flashCardApplication().container.cardRepository
             )
+        }
+
+        initializer {
+            SettingsViewModel(flashCardApplication().applicationContext)
         }
     }
 }

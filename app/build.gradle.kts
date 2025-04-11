@@ -78,4 +78,7 @@ dependencies {
 
     // ViewModelScope
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
 }
