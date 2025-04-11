@@ -1,67 +1,59 @@
 package com.example.flashcardsapp.ui.settings
 
+import android.widget.NumberPicker
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
-import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.flashcardsapp.R
 import com.example.flashcardsapp.ui.DefaultTopBar
+import com.example.flashcardsapp.ui.FlashCardAppViewModelProvider
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun SettingsScreen(
     onNavigateBackUp: () -> Unit,
+    viewModel: SettingsViewModel = viewModel(factory = FlashCardAppViewModelProvider.Factory)
 ) {
-    val standardLimit = remember { mutableStateOf("") }
-    val timedLimit = remember { mutableStateOf("") }
-    val advancedLimit = remember { mutableStateOf("") }
+    val uiState by viewModel.settingsUiState
+
+    val showDialogStandard = remember { mutableStateOf(false) }
+    val showDialogTimed = remember { mutableStateOf(false) }
+    val showDialogAdvanced = remember { mutableStateOf(false) }
 
     val timerOptions = listOf(10, 12, 15)
-    val selectedTimer = remember { mutableIntStateOf(10) }
-
-    val notificationsEnabled = remember { mutableStateOf(false) }
     val selectedTime = remember { mutableStateOf(LocalTime.now()) }
-
     val showTimePicker = remember { mutableStateOf(false) }
 
     if (showTimePicker.value) {
@@ -87,15 +79,35 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                LabeledNumberInput("Standard Study Card Limit", standardLimit.value) {
-                    standardLimit.value = it
-                }
-                LabeledNumberInput("Timed Study Card Limit", timedLimit.value) {
-                    timedLimit.value = it
-                }
-                LabeledNumberInput("Advanced Study Card Limit", advancedLimit.value) {
-                    advancedLimit.value = it
-                }
+                StudyCardLimitPicker(
+                    text = "Standard Study Card Limit",
+                    onValueChange = {
+                        viewModel.updateUiState(uiState.copy(standardLimit = it))
+                    },
+                    selectedNumber = uiState.standardLimit,
+                    range = 5..20,
+                    showDialog = showDialogStandard
+                )
+
+                StudyCardLimitPicker(
+                    text = "Timed Study Card Limit",
+                    onValueChange = {
+                        viewModel.updateUiState(uiState.copy(timedLimit = it))
+                    },
+                    selectedNumber = uiState.timedLimit,
+                    range = 5..20,
+                    showDialog = showDialogTimed
+                )
+
+                StudyCardLimitPicker(
+                    text = "Advanced Study Card Limit",
+                    onValueChange = {
+                        viewModel.updateUiState(uiState.copy(advancedLimit = it))
+                    },
+                    selectedNumber = uiState.advancedLimit,
+                    range = 5..20,
+                    showDialog = showDialogAdvanced
+                )
             }
 
             Row(
@@ -103,13 +115,19 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Study Timer", style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
+                Text(
+                    text = "Study Timer",
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center
+                )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     timerOptions.forEach { option ->
                         FilterChip(
-                            selected = selectedTimer.intValue == option,
-                            onClick = { selectedTimer.intValue = option },
-                            label = { Text("$option") }
+                            selected = uiState.timerSeconds == option,
+                            onClick = {
+                                viewModel.updateUiState(uiState.copy(timerSeconds = option))
+                            },
+                            label = { Text(text = "$option") }
                         )
                     }
                 }
@@ -123,12 +141,14 @@ fun SettingsScreen(
                 ) {
                     Text("Daily Notifications", style = MaterialTheme.typography.bodyLarge)
                     Switch(
-                        checked = notificationsEnabled.value,
-                        onCheckedChange = { notificationsEnabled.value = it }
+                        checked = uiState.notificationsEnabled,
+                        onCheckedChange = {
+                            viewModel.updateUiState(uiState.copy(notificationsEnabled = it))
+                        }
                     )
                 }
 
-                AnimatedVisibility(visible = notificationsEnabled.value) {
+                AnimatedVisibility(visible = uiState.notificationsEnabled) {
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
@@ -154,7 +174,9 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { /* Save logic */ },
+                onClick = {
+
+                },
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .fillMaxWidth(0.5f),
@@ -167,14 +189,42 @@ fun SettingsScreen(
 }
 
 @Composable
-fun LabeledNumberInput(label: String, value: String, onValueChange: (String) -> Unit) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = { if (it.all { c -> c.isDigit() }) onValueChange(it) },
-        label = { Text(label) },
-        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+private fun StudyCardLimitPicker(
+    onValueChange: (Int) -> Unit,
+    selectedNumber: Int,
+    showDialog: MutableState<Boolean>,
+    range: IntRange,
+    text: String
+) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
-    )
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center
+        )
+        NumberSelector(
+            text = text,
+            value = selectedNumber,
+            showDialog = showDialog,
+            range = range,
+            onValueChange = onValueChange,
+        )
+        Text(
+            text = selectedNumber.toString(),
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            modifier = Modifier
+                .background(
+                    MaterialTheme.colorScheme.primaryContainer,
+                    RoundedCornerShape(8.dp)
+                )
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .clickable { showDialog.value = true },
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -203,16 +253,68 @@ fun TimePickerDialog(
                 val newTime = LocalTime.of(state.hour, state.minute)
                 onConfirm(newTime)
             }) {
-                Text("Confirm")
+                Text(text = stringResource(R.string.confirm))
             }
         },
         dismissButton = {
             TextButton(onClick = onCancel) {
-                Text("Cancel")
+                Text(text = stringResource(R.string.cancel))
             }
         },
         containerColor = MaterialTheme.colorScheme.surface,
         titleContentColor = MaterialTheme.colorScheme.onSurface,
         textContentColor = MaterialTheme.colorScheme.onSurface
     )
+}
+
+@Composable
+fun NumberSelector(
+    value: Int,
+    range: IntRange,
+    showDialog: MutableState<Boolean>,
+    onValueChange: (Int) -> Unit,
+    text: String,
+) {
+    var number = value
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDialog.value = false },
+            title = {
+                Text(text = text, style = MaterialTheme.typography.titleLarge)
+            },
+            text = {
+                AndroidView(
+                    factory = {
+                        NumberPicker(it).apply {
+                            minValue = range.first
+                            maxValue = range.last
+                            setOnValueChangedListener { _, _, newVal ->
+                                number = newVal
+                            }
+                            number = this.value
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onValueChange(number)
+                        showDialog.value = false
+                    }
+                ) {
+                    Text(text = stringResource(R.string.confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog.value = false }) {
+                    Text(text = stringResource(R.string.cancel))
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurface
+        )
+    }
 }
