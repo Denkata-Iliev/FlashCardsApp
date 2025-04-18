@@ -54,7 +54,7 @@ class ReminderNotification(private val context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         val initialDate = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 10)
+            set(Calendar.HOUR_OF_DAY, 9)
             set(Calendar.MINUTE, 0)
         }
         alarmManager.setRepeating(
