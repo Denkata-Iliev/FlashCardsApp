@@ -1,6 +1,12 @@
 package com.example.flashcardsapp.ui.settings
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.NumberPicker
+import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +24,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -29,6 +36,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,10 +46,16 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcardsapp.R
 import com.example.flashcardsapp.ui.DefaultTopBar
@@ -62,12 +76,34 @@ fun SettingsScreen(
     val showDialogStandard = remember { mutableStateOf(false) }
     val showDialogTimed = remember { mutableStateOf(false) }
     val showDialogAdvanced = remember { mutableStateOf(false) }
+    var showGoToSettingsDialog by remember { mutableStateOf(false) }
 
     val timerOptions = listOf(10, 12, 15)
-    val selectedTime by rememberUpdatedState(uiState.notificationsLocalTime ?: LocalTime.now())
+    val selectedTime by rememberUpdatedState(uiState.notificationsLocalTime)
     var showTimePicker by remember { mutableStateOf(false) }
 
+    val requestPermissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+            viewModel.updateUiState(uiState.copy(notificationsEnabled = it, notificationPermGranted = it))
+        }
+
     val dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+    val notificationsEnabled = uiState.notificationsEnabled && uiState.notificationPermGranted
+
+    val activity = LocalActivity.current
+
+    var intentToEnableNotifications by remember { mutableStateOf(false) }
+    NotificationPermissionWatcher(
+        onPermissionChange = {
+            viewModel.updateUiState(uiState.copy(notificationPermGranted = it))
+            viewModel.updateSettings(uiState)
+            if (intentToEnableNotifications) {
+                viewModel.updateUiState(uiState.copy(notificationsEnabled = it))
+                intentToEnableNotifications = false
+            }
+        }
+    )
 
     if (showTimePicker) {
         TimePickerDialog(
@@ -76,6 +112,46 @@ fun SettingsScreen(
             onConfirm = {
                 viewModel.updateUiState(uiState.copy(notificationsTime = it.format(dateTimeFormatter)))
                 showTimePicker = false
+            }
+        )
+    }
+
+    if (showGoToSettingsDialog) {
+        AlertDialog(
+            onDismissRequest = { showGoToSettingsDialog = false },
+            confirmButton = {
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    HorizontalDivider()
+                    TextButton(
+                        onClick = {
+                            activity?.openAppSettings()
+                            intentToEnableNotifications = true
+                            showGoToSettingsDialog = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = stringResource(R.string.grant_permissions),
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.notifications),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            text = {
+                Text(
+                    text = "You've permanently declined notifications permissions, " +
+                            "so you need to manually grant them through phone settings."
+                )
             }
         )
     }
@@ -160,22 +236,48 @@ fun SettingsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = stringResource(R.string.daily_notifications), style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = stringResource(R.string.daily_notifications),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+
                     Switch(
-                        checked = uiState.notificationsEnabled,
+                        checked = notificationsEnabled,
                         onCheckedChange = {
-                            viewModel.updateUiState(uiState.copy(notificationsEnabled = it))
+                            // if Android < Tiramisu, I don't need permission for notifications
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                                viewModel.updateUiState(uiState.copy(notificationsEnabled = it, notificationPermGranted = it))
+                                return@Switch
+                            }
+
+                            // if permission granted, just update UI
+                            if (uiState.notificationPermGranted) {
+                                viewModel.updateUiState(uiState.copy(notificationsEnabled = it))
+                                return@Switch
+                            }
+
+                            // if denied permanently, show dialog to go to app settings
+                            if (activity != null && !activity.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                                showGoToSettingsDialog = true
+                                return@Switch
+                            }
+
+                            // if not denied permanently, request permission
+                            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                         }
                     )
                 }
 
-                AnimatedVisibility(visible = uiState.notificationsEnabled) {
+                AnimatedVisibility(visible = notificationsEnabled) {
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text(text = stringResource(R.string.time), style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            text = stringResource(R.string.time),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
 
                         Box(
                             modifier = Modifier
@@ -285,7 +387,10 @@ fun TimePickerDialog(
     AlertDialog(
         onDismissRequest = onCancel,
         title = {
-            Text(text = stringResource(R.string.select_time), style = MaterialTheme.typography.titleLarge)
+            Text(
+                text = stringResource(R.string.select_time),
+                style = MaterialTheme.typography.titleLarge
+            )
         },
         text = {
             TimeInput(state = state)
@@ -358,5 +463,38 @@ fun NumberSelector(
             titleContentColor = MaterialTheme.colorScheme.onSurface,
             textContentColor = MaterialTheme.colorScheme.onSurface
         )
+    }
+}
+
+@Composable
+fun NotificationPermissionWatcher(onPermissionChange: (Boolean) -> Unit) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event != Lifecycle.Event.ON_RESUME) {
+                return@LifecycleEventObserver
+            }
+
+            // if Android < Tiramisu, there's no need for permission
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                onPermissionChange(true)
+                return@LifecycleEventObserver
+            }
+
+            // when screen is on stage ON_RESUME, check if notification permissions are granted
+            val granted = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            onPermissionChange(granted)
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 }

@@ -56,6 +56,7 @@ class MainViewModel : ViewModel() {
         applicationContext.dataStore.edit { prefs ->
             prefs[SettingsKeys.hasRequestPermissionOnceKey] = true
             prefs[SettingsKeys.notificationsEnabledKey] = isGranted
+            prefs[SettingsKeys.notificationPermissionGrantedKey] = isGranted
         }
     }
 }

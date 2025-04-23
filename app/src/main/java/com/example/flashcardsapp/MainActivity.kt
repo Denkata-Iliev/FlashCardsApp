@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
                         },
                         title = {
                             Text(
-                                text = "Notifications",
+                                text = stringResource(R.string.notifications),
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.fillMaxWidth()
                             )
