@@ -29,24 +29,24 @@ class SettingsViewModel(private val applicationContext: Context) : ViewModel() {
 
             if (prefs[SettingsKeys.isInitializedKey] == false) {
                 applicationContext.dataStore.edit {
-                    it[SettingsKeys.standardLimitKey] = DEFAULT_STUDY_CARD_LIMIT
-                    it[SettingsKeys.timedLimitKey] = DEFAULT_STUDY_CARD_LIMIT
-                    it[SettingsKeys.advancedLimitKey] = DEFAULT_STUDY_CARD_LIMIT
-                    it[SettingsKeys.timerSecondsKey] = DEFAULT_TIMER_SECONDS
-                    it[SettingsKeys.notificationsTimeKey] = DEFAULT_NOTIFICATIONS_TIME
+                    it[SettingsKeys.standardLimitKey] = SettingsDefaults.DEFAULT_STUDY_CARD_LIMIT
+                    it[SettingsKeys.timedLimitKey] = SettingsDefaults.DEFAULT_STUDY_CARD_LIMIT
+                    it[SettingsKeys.advancedLimitKey] = SettingsDefaults.DEFAULT_STUDY_CARD_LIMIT
+                    it[SettingsKeys.timerSecondsKey] = SettingsDefaults.DEFAULT_TIMER_SECONDS
+                    it[SettingsKeys.notificationsTimeKey] = SettingsDefaults.DEFAULT_NOTIFICATIONS_TIME
                     it[SettingsKeys.isInitializedKey] = true
                 }
             }
 
             settingsUiState.value = SettingsUiState(
-                standardLimit = prefs[SettingsKeys.standardLimitKey] ?: DEFAULT_STUDY_CARD_LIMIT,
-                timedLimit = prefs[SettingsKeys.timedLimitKey] ?: DEFAULT_STUDY_CARD_LIMIT,
-                advancedLimit = prefs[SettingsKeys.advancedLimitKey] ?: DEFAULT_STUDY_CARD_LIMIT,
-                timerSeconds = prefs[SettingsKeys.timerSecondsKey] ?: DEFAULT_TIMER_SECONDS,
+                standardLimit = prefs[SettingsKeys.standardLimitKey] ?: SettingsDefaults.DEFAULT_STUDY_CARD_LIMIT,
+                timedLimit = prefs[SettingsKeys.timedLimitKey] ?: SettingsDefaults.DEFAULT_STUDY_CARD_LIMIT,
+                advancedLimit = prefs[SettingsKeys.advancedLimitKey] ?: SettingsDefaults.DEFAULT_STUDY_CARD_LIMIT,
+                timerSeconds = prefs[SettingsKeys.timerSecondsKey] ?: SettingsDefaults.DEFAULT_TIMER_SECONDS,
                 notificationsEnabled = prefs[SettingsKeys.notificationsEnabledKey] ?: false,
                 notificationPermGranted = prefs[SettingsKeys.notificationPermissionGrantedKey] ?: false,
                 notificationsTime = prefs[SettingsKeys.notificationsTimeKey]
-                    ?: DEFAULT_NOTIFICATIONS_TIME
+                    ?: SettingsDefaults.DEFAULT_NOTIFICATIONS_TIME
             )
         }
     }
@@ -78,13 +78,13 @@ class SettingsViewModel(private val applicationContext: Context) : ViewModel() {
 }
 
 data class SettingsUiState(
-    val standardLimit: Int = 10,
-    val timedLimit: Int = 10,
-    val advancedLimit: Int = 10,
-    val timerSeconds: Int = 10,
+    val standardLimit: Int = SettingsDefaults.DEFAULT_STUDY_CARD_LIMIT,
+    val timedLimit: Int = SettingsDefaults.DEFAULT_STUDY_CARD_LIMIT,
+    val advancedLimit: Int = SettingsDefaults.DEFAULT_STUDY_CARD_LIMIT,
+    val timerSeconds: Int = SettingsDefaults.DEFAULT_TIMER_SECONDS,
     val notificationsEnabled: Boolean = false,
     val notificationPermGranted: Boolean = false,
-    val notificationsTime: String = "09:00",
+    val notificationsTime: String = SettingsDefaults.DEFAULT_NOTIFICATIONS_TIME,
 ) {
     val notificationsLocalTime: LocalTime
         get() {
@@ -103,6 +103,13 @@ object SettingsKeys {
     val hasRequestPermissionOnceKey = booleanPreferencesKey("has_requested_permission_once")
     val isInitializedKey = booleanPreferencesKey("is_initialized")
     val notificationPermissionGrantedKey = booleanPreferencesKey("notification_permission_granted")
+}
+
+object SettingsDefaults {
+    val DEFAULT_RANGE = 5..20
+    const val DEFAULT_STUDY_CARD_LIMIT = 10
+    const val DEFAULT_TIMER_SECONDS = 10
+    const val DEFAULT_NOTIFICATIONS_TIME = "09:00"
 }
 
 fun Activity.openAppSettings() {

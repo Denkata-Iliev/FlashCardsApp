@@ -7,8 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flashcardsapp.data.entity.Card
 import com.example.flashcardsapp.data.repository.CardRepository
+import com.example.flashcardsapp.ui.settings.SettingsDefaults
 import com.example.flashcardsapp.ui.settings.SettingsKeys
-import com.example.flashcardsapp.ui.settings.SettingsViewModel
 import com.example.flashcardsapp.ui.settings.dataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -26,7 +26,7 @@ class StandardStudyViewModel(
     init {
         viewModelScope.launch {
             val limit = applicationContext.dataStore.data.map {
-                it[SettingsKeys.standardLimitKey] ?: SettingsViewModel.DEFAULT_STUDY_CARD_LIMIT
+                it[SettingsKeys.standardLimitKey] ?: SettingsDefaults.DEFAULT_STUDY_CARD_LIMIT
             }.first()
 
             _standardUiState.value = StandardUiState(

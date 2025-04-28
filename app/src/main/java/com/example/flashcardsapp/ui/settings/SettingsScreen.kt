@@ -182,7 +182,7 @@ fun SettingsScreen(
                         viewModel.updateUiState(uiState.copy(standardLimit = it))
                     },
                     selectedNumber = uiState.standardLimit,
-                    range = SettingsViewModel.DEFAULT_RANGE,
+                    range = SettingsDefaults.DEFAULT_RANGE,
                     showDialog = showDialogStandard
                 )
 
@@ -192,7 +192,7 @@ fun SettingsScreen(
                         viewModel.updateUiState(uiState.copy(timedLimit = it))
                     },
                     selectedNumber = uiState.timedLimit,
-                    range = SettingsViewModel.DEFAULT_RANGE,
+                    range = SettingsDefaults.DEFAULT_RANGE,
                     showDialog = showDialogTimed
                 )
 
@@ -202,7 +202,7 @@ fun SettingsScreen(
                         viewModel.updateUiState(uiState.copy(advancedLimit = it))
                     },
                     selectedNumber = uiState.advancedLimit,
-                    range = SettingsViewModel.DEFAULT_RANGE,
+                    range = SettingsDefaults.DEFAULT_RANGE,
                     showDialog = showDialogAdvanced
                 )
             }
