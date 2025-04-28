@@ -1,15 +1,22 @@
 package com.example.flashcardsapp.ui.study
 
+import android.content.Context
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flashcardsapp.data.entity.Card
 import com.example.flashcardsapp.data.repository.CardRepository
+import com.example.flashcardsapp.ui.settings.SettingsKeys
+import com.example.flashcardsapp.ui.settings.SettingsViewModel
+import com.example.flashcardsapp.ui.settings.dataStore
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.math.max
 
 class StandardStudyViewModel(
+    private val applicationContext: Context,
     private val deckId: Int,
     private val cardRepository: CardRepository
 ) : ViewModel() {
@@ -18,10 +25,14 @@ class StandardStudyViewModel(
 
     init {
         viewModelScope.launch {
+            val limit = applicationContext.dataStore.data.map {
+                it[SettingsKeys.standardLimitKey] ?: SettingsViewModel.DEFAULT_STUDY_CARD_LIMIT
+            }.first()
+
             _standardUiState.value = StandardUiState(
                 cards = cardRepository.getDueCardsFromDeck(
                     currentTime = System.currentTimeMillis(),
-                    limit = 10,
+                    limit = limit,
                     deckId = deckId
                 )
             )

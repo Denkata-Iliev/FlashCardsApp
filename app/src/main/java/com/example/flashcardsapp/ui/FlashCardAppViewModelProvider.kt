@@ -29,6 +29,7 @@ class CustomFactories {
         fun standardStudyFactory(deckId: Int): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 StandardStudyViewModel(
+                    applicationContext = flashCardApplication().applicationContext,
                     deckId = deckId,
                     cardRepository = flashCardApplication().container.cardRepository
                 )
@@ -38,6 +39,7 @@ class CustomFactories {
         fun timedStudyFactory(deckId: Int): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 TimedStudyViewModel(
+                    applicationContext = flashCardApplication().applicationContext,
                     deckId = deckId,
                     cardRepository = flashCardApplication().container.cardRepository
                 )
@@ -47,6 +49,7 @@ class CustomFactories {
         fun advancedStudyFactory(deckId: Int): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 AdvancedStudyViewModel(
+                    applicationContext = flashCardApplication().applicationContext,
                     deckId = deckId,
                     cardRepository = flashCardApplication().container.cardRepository
                 )

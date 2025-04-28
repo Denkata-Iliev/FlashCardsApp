@@ -71,7 +71,7 @@ class SettingsViewModel(private val applicationContext: Context) : ViewModel() {
 
     companion object {
         val DEFAULT_RANGE = 5..20
-        private const val DEFAULT_STUDY_CARD_LIMIT = 10
+        const val DEFAULT_STUDY_CARD_LIMIT = 10
         private const val DEFAULT_TIMER_SECONDS = 10
         private const val DEFAULT_NOTIFICATIONS_TIME = "09:00"
     }
