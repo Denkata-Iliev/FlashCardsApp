@@ -11,6 +11,7 @@ import androidx.core.app.NotificationCompat
 import com.example.flashcardsapp.FlashCardApplication
 import com.example.flashcardsapp.MainActivity
 import com.example.flashcardsapp.R
+import java.time.LocalTime
 import java.util.Calendar
 
 class ReminderNotification(private val context: Context) {
@@ -42,24 +43,35 @@ class ReminderNotification(private val context: Context) {
         notificationManager.notify(NOTIFICATION_ID, notification)
     }
 
-    fun scheduleNotification() {
-        val intent = Intent(context, ReminderReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            FlashCardApplication.OPEN_APP_REQUEST_CODE,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE
-        )
+    fun scheduleNotificationDefaultTime() {
+        val pendingIntent = NotificationUtils.getNotificationPendingIntent(context)
 
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarmManager = NotificationUtils.getAlarmManager(context)
 
-        val initialDate = Calendar.getInstance().apply {
+        val defaultTime = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 9)
             set(Calendar.MINUTE, 0)
         }
         alarmManager.setRepeating(
             AlarmManager.RTC_WAKEUP,
-            initialDate.timeInMillis,
+            defaultTime.timeInMillis,
+            AlarmManager.INTERVAL_DAY,
+            pendingIntent
+        )
+    }
+
+    fun scheduleNotification(time: LocalTime) {
+        val pendingIntent = NotificationUtils.getNotificationPendingIntent(context)
+
+        val alarmManager = NotificationUtils.getAlarmManager(context)
+
+        val scheduleTime = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, time.hour)
+            set(Calendar.MINUTE, time.minute)
+        }
+        alarmManager.setRepeating(
+            AlarmManager.RTC_WAKEUP,
+            scheduleTime.timeInMillis,
             AlarmManager.INTERVAL_DAY,
             pendingIntent
         )

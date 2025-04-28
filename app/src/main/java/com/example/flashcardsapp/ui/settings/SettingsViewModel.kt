@@ -12,6 +12,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.flashcardsapp.notification.NotificationUtils
+import com.example.flashcardsapp.notification.ReminderNotification
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalTime
@@ -62,6 +64,11 @@ class SettingsViewModel(private val applicationContext: Context) : ViewModel() {
                 it[SettingsKeys.notificationPermissionGrantedKey] = uiState.notificationPermGranted
                 it[SettingsKeys.notificationsTimeKey] = uiState.notificationsTime
             }
+
+            cancelNotifications()
+            if (uiState.notificationsEnabled && uiState.notificationPermGranted) {
+                ReminderNotification(applicationContext).scheduleNotification(uiState.notificationsLocalTime)
+            }
         }
     }
 
@@ -69,11 +76,16 @@ class SettingsViewModel(private val applicationContext: Context) : ViewModel() {
         settingsUiState.value = uiState
     }
 
-    companion object {
-        val DEFAULT_RANGE = 5..20
-        const val DEFAULT_STUDY_CARD_LIMIT = 10
-        private const val DEFAULT_TIMER_SECONDS = 10
-        private const val DEFAULT_NOTIFICATIONS_TIME = "09:00"
+    private fun cancelNotifications() {
+        val pendingIntent = NotificationUtils.getNotificationPendingIntent(applicationContext)
+        val alarmManager = NotificationUtils.getAlarmManager(applicationContext)
+
+        alarmManager.cancel(pendingIntent)
+    }
+
+    fun scheduleNotificationDefaultTime() {
+        cancelNotifications()
+        ReminderNotification(applicationContext).scheduleNotificationDefaultTime()
     }
 }
 

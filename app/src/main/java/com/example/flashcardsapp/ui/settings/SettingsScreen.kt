@@ -60,6 +60,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcardsapp.R
 import com.example.flashcardsapp.ui.DefaultTopBar
 import com.example.flashcardsapp.ui.FlashCardAppViewModelProvider
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -85,6 +86,9 @@ fun SettingsScreen(
     val requestPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
             viewModel.updateUiState(uiState.copy(notificationsEnabled = it, notificationPermGranted = it))
+            if (it) {
+                viewModel.scheduleNotificationDefaultTime()
+            }
         }
 
     val dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
@@ -101,6 +105,12 @@ fun SettingsScreen(
             if (intentToEnableNotifications) {
                 viewModel.updateUiState(uiState.copy(notificationsEnabled = it))
                 intentToEnableNotifications = false
+
+                // delay scheduling the notification on resume because system might not be ready
+                coroutineScope.launch {
+                    delay(100)
+                    viewModel.scheduleNotificationDefaultTime()
+                }
             }
         }
     )

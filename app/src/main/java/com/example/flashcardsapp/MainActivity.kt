@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
                 val reminderNotification = ReminderNotification(applicationContext)
-                reminderNotification.scheduleNotification()
+                reminderNotification.scheduleNotificationDefaultTime()
             }
 
             lifecycleScope.launch {
