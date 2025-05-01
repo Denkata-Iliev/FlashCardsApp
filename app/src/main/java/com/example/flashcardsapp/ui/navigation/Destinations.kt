@@ -22,3 +22,6 @@ data class TimedStudyDestination(val deckId: Int = 0)
 
 @Serializable
 data class AdvancedStudyDestination(val deckId: Int = 0)
+
+@Serializable
+object SettingsDestination

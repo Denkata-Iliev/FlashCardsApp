@@ -10,6 +10,7 @@ import com.example.flashcardsapp.ui.card.AddCardsViewModel
 import com.example.flashcardsapp.ui.card.CardListViewModel
 import com.example.flashcardsapp.ui.card.EditCardViewModel
 import com.example.flashcardsapp.ui.deck.DeckListViewModel
+import com.example.flashcardsapp.ui.settings.SettingsViewModel
 import com.example.flashcardsapp.ui.study.AdvancedStudyViewModel
 import com.example.flashcardsapp.ui.study.StandardStudyViewModel
 import com.example.flashcardsapp.ui.study.TimedStudyViewModel
@@ -28,6 +29,7 @@ class CustomFactories {
         fun standardStudyFactory(deckId: Int): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 StandardStudyViewModel(
+                    applicationContext = flashCardApplication().applicationContext,
                     deckId = deckId,
                     cardRepository = flashCardApplication().container.cardRepository
                 )
@@ -37,6 +39,7 @@ class CustomFactories {
         fun timedStudyFactory(deckId: Int): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 TimedStudyViewModel(
+                    applicationContext = flashCardApplication().applicationContext,
                     deckId = deckId,
                     cardRepository = flashCardApplication().container.cardRepository
                 )
@@ -46,6 +49,7 @@ class CustomFactories {
         fun advancedStudyFactory(deckId: Int): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 AdvancedStudyViewModel(
+                    applicationContext = flashCardApplication().applicationContext,
                     deckId = deckId,
                     cardRepository = flashCardApplication().container.cardRepository
                 )
@@ -72,6 +76,10 @@ object FlashCardAppViewModelProvider {
             EditCardViewModel(
                 flashCardApplication().container.cardRepository
             )
+        }
+
+        initializer {
+            SettingsViewModel(flashCardApplication().applicationContext)
         }
     }
 }

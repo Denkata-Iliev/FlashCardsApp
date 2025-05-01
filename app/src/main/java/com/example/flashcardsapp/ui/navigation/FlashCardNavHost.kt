@@ -10,6 +10,7 @@ import com.example.flashcardsapp.ui.card.AddCardsScreen
 import com.example.flashcardsapp.ui.card.CardListScreen
 import com.example.flashcardsapp.ui.card.EditCardScreen
 import com.example.flashcardsapp.ui.deck.DeckListScreen
+import com.example.flashcardsapp.ui.settings.SettingsScreen
 import com.example.flashcardsapp.ui.study.AdvancedStudyScreen
 import com.example.flashcardsapp.ui.study.StandardStudyScreen
 import com.example.flashcardsapp.ui.study.TimedStudyScreen
@@ -25,9 +26,14 @@ fun FlashCardNavHost(
         modifier = modifier
     ) {
         composable<StartDestination> {
-            DeckListScreen(navigateToDeck = { deckId ->
-                navController.navigate(CardListDestination(deckId))
-            })
+            DeckListScreen(
+                navigateToDeck = { deckId ->
+                    navController.navigate(CardListDestination(deckId))
+                },
+                onNavigateToSettings = {
+                    navController.navigate(SettingsDestination)
+                }
+            )
         }
 
         composable<CardListDestination> {
@@ -93,6 +99,10 @@ fun FlashCardNavHost(
                 deckId = destination.deckId,
                 onNavigateBackUp = { navController.navigateUp() }
             )
+        }
+
+        composable<SettingsDestination> {
+            SettingsScreen(onNavigateBackUp = { navController.navigateUp() })
         }
     }
 }
