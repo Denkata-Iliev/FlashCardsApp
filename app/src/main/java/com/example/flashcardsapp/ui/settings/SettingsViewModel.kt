@@ -85,7 +85,7 @@ class SettingsViewModel(private val applicationContext: Context) : ViewModel() {
 
     fun scheduleNotificationDefaultTime() {
         cancelNotifications()
-        ReminderNotification(applicationContext).scheduleNotificationDefaultTime()
+        ReminderNotification(applicationContext).scheduleNotification()
     }
 }
 

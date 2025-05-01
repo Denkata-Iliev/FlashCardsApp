@@ -43,24 +43,7 @@ class ReminderNotification(private val context: Context) {
         notificationManager.notify(NOTIFICATION_ID, notification)
     }
 
-    fun scheduleNotificationDefaultTime() {
-        val pendingIntent = NotificationUtils.getNotificationPendingIntent(context)
-
-        val alarmManager = NotificationUtils.getAlarmManager(context)
-
-        val defaultTime = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 9)
-            set(Calendar.MINUTE, 0)
-        }
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            defaultTime.timeInMillis,
-            AlarmManager.INTERVAL_DAY,
-            pendingIntent
-        )
-    }
-
-    fun scheduleNotification(time: LocalTime) {
+    fun scheduleNotification(time: LocalTime = LocalTime.of(9, 0)) {
         val pendingIntent = NotificationUtils.getNotificationPendingIntent(context)
 
         val alarmManager = NotificationUtils.getAlarmManager(context)
