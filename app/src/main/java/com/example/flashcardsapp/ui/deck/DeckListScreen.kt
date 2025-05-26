@@ -180,28 +180,26 @@ fun DeckListScreen(
                     AnimatedVisibility (
                         visible = selectedIds.isNotEmpty()
                     ) {
-                        IconButton(
-                            onClick = { viewModel.openDeleteConfirm() }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Delete,
-                                contentDescription = stringResource(R.string.delete_icon),
-                                modifier = Modifier.size(dimensionResource(R.dimen.icon_top_bar_size))
-                            )
-                        }
-                    }
+                        Row {
+                            IconButton(
+                                onClick = { viewModel.openDeleteConfirm() }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Delete,
+                                    contentDescription = stringResource(R.string.delete_icon),
+                                    modifier = Modifier.size(dimensionResource(R.dimen.icon_top_bar_size))
+                                )
+                            }
 
-                    AnimatedVisibility(
-                        visible = selectedIds.isNotEmpty()
-                    ) {
-                        IconButton(
-                            onClick = { launcherExport.launch(DEFAULT_FILE_NAME) }
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.export_icon),
-                                contentDescription = stringResource(R.string.export_icon),
-                                modifier = Modifier.size(dimensionResource(R.dimen.icon_top_bar_size))
-                            )
+                            IconButton(
+                                onClick = { launcherExport.launch(DEFAULT_FILE_NAME) }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.export_icon),
+                                    contentDescription = stringResource(R.string.export_icon),
+                                    modifier = Modifier.size(dimensionResource(R.dimen.icon_top_bar_size))
+                                )
+                            }
                         }
                     }
 
@@ -234,36 +232,33 @@ fun DeckListScreen(
                 modifier = Modifier.shadow(elevation = dimensionResource(R.dimen.top_app_bar_elevation))
             )
         },
-        modifier = Modifier.shadow(elevation = dimensionResource(R.dimen.top_app_bar_elevation))
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
             AnimatedVisibility(
                 visible = inSelectionMode
             ) {
                 Row {
-                    Column {
-                        if (selectedIds.size != deckListUiState.decks.size) {
-                            IconButton(
-                                onClick = { viewModel.selectAll(deckListUiState.decks) },
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.radio_btn_unchecked),
-                                    contentDescription = stringResource(R.string.select_all_icon),
-                                    tint = MaterialTheme.colorScheme.tertiary,
-                                )
-                            }
+                    if (selectedIds.size != deckListUiState.decks.size) {
+                        IconButton(
+                            onClick = { viewModel.selectAll(deckListUiState.decks) },
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.radio_btn_unchecked),
+                                contentDescription = stringResource(R.string.select_all_icon),
+                                tint = MaterialTheme.colorScheme.tertiary,
+                            )
                         }
+                    }
 
-                        if (selectedIds.size == deckListUiState.decks.size) {
-                            IconButton(
-                                onClick = { viewModel.deselectAll() },
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.CheckCircle,
-                                    contentDescription = stringResource(R.string.deselect_all_icon),
-                                    tint = MaterialTheme.colorScheme.primary,
-                                )
-                            }
+                    if (selectedIds.size == deckListUiState.decks.size) {
+                        IconButton(
+                            onClick = { viewModel.deselectAll() },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.CheckCircle,
+                                contentDescription = stringResource(R.string.deselect_all_icon),
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
                         }
                     }
 
